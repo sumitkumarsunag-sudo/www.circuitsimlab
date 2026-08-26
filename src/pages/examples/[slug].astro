@@ -1,0 +1,97 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { EXAMPLES, getExample } from '../../lib/content/examples.ts';
+import { renderSymbolInner } from '../../lib/components/renderSymbol.ts';
+import { getComponentDef } from '../../lib/components/registry.ts';
+import { encodeShare } from '../../lib/circuit/serialize.ts';
+
+export function getStaticPaths() {
+  return EXAMPLES.map((e) => ({ params: { slug: e.slug }, props: { slug: e.slug } }));
+}
+
+const { slug } = Astro.props as { slug: string };
+const ex = getExample(slug)!;
+const circuit = ex.build();
+const openUrl = `/s/v#c=${encodeShare(circuit)}`;
+
+let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+const grow = (x: number, y: number) => { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); };
+for (const w of circuit.wires) { grow(w.x1, w.y1); grow(w.x2, w.y2); }
+for (const c of circuit.components) grow(c.x, c.y);
+const pad = 60;
+const viewBox = `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: ex.title,
+  description: ex.summary,
+  about: 'Electronics circuit simulation',
+};
+---
+
+<Layout
+  title={`${ex.title} — Simulated Circuit Example | CircuitSimulate`}
+  description={ex.summary}
+  path={`/examples/${ex.slug}`}
+  jsonLd={jsonLd}
+>
+  <div class="container-page py-12 md:py-16">
+    <nav class="tnum text-xs text-muted" aria-label="Breadcrumb">
+      <a href="/examples" class="hover:text-accent">Examples</a> <span class="mx-1">/</span> {ex.category}
+    </nav>
+
+    <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">{ex.title}</h1>
+        <p class="mt-2 max-w-2xl text-lg text-ink-2">{ex.summary}</p>
+      </div>
+      <a href={openUrl} class="btn btn-primary">Open in simulator →</a>
+    </div>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div>
+        <div class="rounded-lg border border-line bg-paper">
+          <div class="flex items-center gap-1.5 border-b border-line px-3 py-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span>
+            <span class="tnum ml-2 text-xs text-muted">{ex.slug}.circuit</span>
+            <span class="tnum ml-auto text-xs uppercase text-accent">{ex.mode} analysis</span>
+          </div>
+          <svg viewBox={viewBox} class="h-[22rem] w-full p-4" role="img" aria-label={`${ex.title} schematic`}>
+            {circuit.wires.map((w) => (
+              <line x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} stroke="var(--color-ink)" stroke-width="2" stroke-linecap="round" />
+            ))}
+            {circuit.components.map((comp) => {
+              const def = getComponentDef(comp.kind)!;
+              const inner = renderSymbolInner(def.symbol, { stroke: 'var(--color-ink)', strokeWidth: 2 });
+              return <g transform={`translate(${comp.x} ${comp.y}) rotate(${comp.rotation}) scale(${comp.flip ? -1 : 1} 1)`} set:html={inner} />;
+            })}
+          </svg>
+        </div>
+
+        <div class="doc mt-8">
+          <h2>How it works</h2>
+          {ex.explain.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+
+      <aside class="space-y-6">
+        <div class="rounded-lg border border-line bg-surface p-5">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-faint">Solved results</h2>
+          <dl class="mt-3 space-y-2">
+            {ex.results.map((r) => (
+              <div class="flex items-baseline justify-between gap-4 border-b border-line/60 pb-2">
+                <dt class="text-sm text-ink-2">{r.label}</dt>
+                <dd class="tnum text-sm font-medium">{r.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p class="mt-3 text-xs text-muted">Values come from the MNA solver, not the page. Open the circuit and run it to confirm.</p>
+        </div>
+        <a href={openUrl} class="btn btn-primary w-full justify-center">Open & run this circuit</a>
+        <a href="/examples" class="btn btn-ghost w-full justify-center">More examples</a>
+      </aside>
+    </div>
+  </div>
+</Layout>

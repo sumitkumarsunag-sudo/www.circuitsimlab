@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SchematicEditor from '../components/editor/SchematicEditor.tsx';
+---
+
+<Layout
+  title="Circuit Simulator — Build & Simulate Online | CircuitSimulate"
+  description="Free online circuit simulator. Drag components onto the canvas, wire them up, and run real DC, transient and AC analysis in your browser. No install, no sign-up."
+  path="/simulator"
+  bare
+>
+  <SchematicEditor client:only="react" />
+  <noscript>
+    <div class="container-page py-16 text-center">
+      <h1 class="text-2xl font-semibold">JavaScript required</h1>
+      <p class="mt-3 text-ink-2">The interactive simulator needs JavaScript enabled. Browse
+        <a class="prose-link" href="/examples">example circuits</a> or read the
+        <a class="prose-link" href="/documentation">documentation</a> instead.</p>
+    </div>
+  </noscript>
+</Layout>

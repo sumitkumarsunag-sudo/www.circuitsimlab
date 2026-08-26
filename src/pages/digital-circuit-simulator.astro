@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const canDo = [
+  ['Represent logic levels', 'Use DC sources to hold a node HIGH or LOW and reason about the voltage that a gate input would see.'],
+  ['Model thresholds', 'A logic input switches around a threshold voltage. Build a divider or a switch and check which side of the threshold a node lands on.'],
+  ['Pull-ups and pull-downs', 'Wire a resistor to the rail or to ground to set a default level — the same idiom you use on real digital inputs.'],
+  ['Indicate state', 'Drive an LED through a resistor so a HIGH node lights it, giving you a visible read-out of a logic level.'],
+];
+
+const faqs = [
+  {
+    q: 'Does this simulate logic gates like AND, OR and flip-flops?',
+    a: 'Not yet. CircuitSimulate is an analog-first, voltage-and-current solver. There are no gate-level digital ICs in the palette today, so it will not compute a truth table for you. First-class logic gates and sequential parts are on the roadmap.',
+  },
+  {
+    q: 'So what can I do with it digitally right now?',
+    a: 'You can work at the electrical level that underlies digital logic: hold nodes HIGH or LOW with sources, set defaults with pull-up and pull-down resistors, and check voltages against a switching threshold. It is genuinely useful for understanding logic levels, interfacing and I/O.',
+  },
+  {
+    q: 'Why frame it around voltage levels instead of gates?',
+    a: 'Because that is what the engine actually solves. Being honest about it means the HIGH/LOW reasoning you do here is real — the node voltages come from the solver, not from a logic abstraction layered on top.',
+  },
+  {
+    q: 'When will gate-level digital simulation arrive?',
+    a: 'Richer digital ICs are planned. Until then, the fundamentals you build here — thresholds, pull resistors, level indication — carry straight over to gate-level design.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Digital circuit simulator',
+    description:
+      'Reason about digital logic at the electrical level: HIGH and LOW voltage levels, thresholds and pull resistors. Gate-level digital ICs are on the roadmap.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Digital circuit simulator — logic levels, thresholds and pull resistors"
+  description="Reason about digital logic at the electrical level in your browser: HIGH and LOW voltages, switching thresholds and pull-up/pull-down resistors. Gate-level ICs are on the roadmap."
+  path="/digital-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Digital circuit simulator</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        Digital logic starts as voltage. Start there.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        Every HIGH and LOW is a real voltage on a real node. CircuitSimulate solves those voltages, so
+        you can reason about logic levels, thresholds and pull resistors with numbers you can trust.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/learn" class="btn btn-ghost text-base">Learn the basics</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honesty callout -->
+  <section class="container-page py-10">
+    <div class="rounded-lg border border-line-strong bg-surface p-5">
+      <p class="text-sm text-ink-2">
+        <strong class="text-ink">Straight talk:</strong> this is an analog voltage-and-current solver,
+        not a gate-level logic simulator. There are no AND/OR/flip-flop ICs in the palette yet — those
+        are on the roadmap. What works today is the electrical foundation underneath digital design,
+        described below.
+      </p>
+    </div>
+  </section>
+
+  <section class="container-page pb-16 md:pb-20">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">What you can do today</h2>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2">
+      {canDo.map(([t, d]) => (
+        <div class="rounded-md border border-line bg-paper p-5">
+          <h3 class="font-semibold text-ink">{t}</h3>
+          <p class="mt-1.5 text-sm text-ink-2">{d}</p>
+        </div>
+      ))}
+    </div>
+    <div class="mt-8 flex flex-wrap gap-4 text-sm">
+      <a href="/examples/voltage-divider" class="prose-link">Thresholds with a divider →</a>
+      <a href="/tools/voltage-divider-calculator" class="prose-link">Divider calculator →</a>
+      <a href="/components" class="prose-link">Component library →</a>
+    </div>
+  </section>
+
+  <section class="border-t border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+      <dl class="mt-8 max-w-3xl divide-y divide-line">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="font-semibold text-ink">{f.q}</dt>
+            <dd class="mt-2 text-ink-2">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+      <a href="/simulator" class="btn btn-primary mt-10 text-base">Open the simulator</a>
+    </div>
+  </section>
+</Layout>

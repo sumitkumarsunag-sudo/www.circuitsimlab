@@ -1,0 +1,174 @@
+@import 'tailwindcss';
+
+/*
+ * CircuitSimulate design system.
+ *
+ * Identity: precision instrument meets schematic paper. Light, quiet surfaces;
+ * a single "trace teal" accent; and monospace tabular figures for every
+ * simulated value — the way a real multimeter or scope reads out. Boldness is
+ * spent in exactly one place: the live current-flow animation on the canvas.
+ */
+
+@theme {
+  /* Ink & surface */
+  --color-ink: #0b1220;
+  --color-ink-2: #33404f;
+  --color-muted: #6a7788;
+  --color-faint: #9aa6b4;
+  --color-paper: #ffffff;
+  --color-surface: #f6f8fb;
+  --color-surface-2: #eef2f7;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+
+  /* Trace teal — the one brand accent */
+  --color-accent: #0e7490;
+  --color-accent-strong: #0b5568;
+  --color-accent-soft: #e0f2f7;
+
+  /* Functional / simulation-state colors (used only where they mean something) */
+  --color-signal: #e0a32e; /* energized / current flow */
+  --color-pos: #d64545; /* + terminal, high node voltage */
+  --color-neg: #2f6fed; /* − terminal, low node voltage */
+  --color-ok: #2e8b57;
+  --color-warn: #b45309;
+  --color-err: #c0392b;
+
+  /* Type */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --radius-sm: 3px;
+  --radius: 5px;
+}
+
+:root {
+  --header-h: 3.5rem;
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+/* Tabular monospace numerals for anything that reads like an instrument. */
+.tnum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Faint engineering grid — the schematic-paper texture, used behind heroes. */
+.grid-paper {
+  background-image:
+    linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.grid-paper-fade {
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 100%);
+}
+
+/* Links inside prose. */
+.prose-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-accent-soft);
+}
+.prose-link:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+/* Focus visibility everywhere (accessibility floor). */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+  text-decoration: none;
+  line-height: 1;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-accent-strong);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border-color: var(--color-line-strong);
+}
+.btn-ghost:hover {
+  background: var(--color-surface);
+}
+
+.container-page {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+/* Content prose defaults for learn/docs pages. */
+.doc h2 { font-size: 1.5rem; font-weight: 650; margin: 2.2rem 0 0.75rem; letter-spacing: -0.01em; }
+.doc h3 { font-size: 1.15rem; font-weight: 600; margin: 1.6rem 0 0.5rem; }
+.doc p { margin: 0.75rem 0; color: var(--color-ink-2); }
+.doc ul { margin: 0.75rem 0; padding-left: 1.25rem; list-style: disc; color: var(--color-ink-2); }
+.doc li { margin: 0.3rem 0; }
+.doc a { color: var(--color-accent); text-decoration: none; border-bottom: 1px solid var(--color-accent-soft); }
+.doc a:hover { border-bottom-color: var(--color-accent); }
+.doc code { font-family: var(--font-mono); font-size: 0.875em; background: var(--color-surface-2); padding: 0.1em 0.35em; border-radius: 3px; }
+.doc strong { color: var(--color-ink); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Live current-flow animation on the canvas — the one place boldness is spent.
+   Only elements carrying real solved current get the `flow` class applied. */
+@keyframes trace-flow {
+  to { stroke-dashoffset: -16; }
+}
+.flow {
+  stroke-dasharray: 3 5;
+  animation: trace-flow 0.6s linear infinite;
+}
+.flow-rev {
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow { animation: none; stroke-dasharray: 3 5; }
+}

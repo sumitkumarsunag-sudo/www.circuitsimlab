@@ -1,0 +1,70 @@
+---
+import Logo from './Logo.astro';
+
+const cols = [
+  {
+    title: 'Simulator',
+    links: [
+      { href: '/simulator', label: 'Open Simulator' },
+      { href: '/examples', label: 'Example Circuits' },
+      { href: '/components', label: 'Component Library' },
+      { href: '/tools', label: 'Calculators' },
+    ],
+  },
+  {
+    title: 'Learn',
+    links: [
+      { href: '/learn', label: 'Guides' },
+      { href: '/learn/ohms-law', label: "Ohm's Law" },
+      { href: '/learn/capacitors', label: 'Capacitors' },
+      { href: '/documentation', label: 'Documentation' },
+    ],
+  },
+  {
+    title: 'Simulators',
+    links: [
+      { href: '/online-circuit-simulator', label: 'Online Circuit Simulator' },
+      { href: '/led-circuit-simulator', label: 'LED Circuit Simulator' },
+      { href: '/rc-circuit-simulator', label: 'RC Circuit Simulator' },
+      { href: '/555-timer-simulator', label: '555 Timer Simulator' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { href: '/about', label: 'About' },
+      { href: '/contact', label: 'Contact' },
+      { href: '/privacy', label: 'Privacy' },
+      { href: '/terms', label: 'Terms' },
+    ],
+  },
+];
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line bg-surface mt-24">
+  <div class="container-page py-12">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div class="col-span-2 md:col-span-1">
+        <Logo />
+        <p class="mt-3 text-sm text-muted max-w-[15rem]">
+          A real, browser-based circuit simulator. Build. Simulate. Understand.
+        </p>
+      </div>
+      {cols.map((c) => (
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-faint">{c.title}</h3>
+          <ul class="mt-3 space-y-2">
+            {c.links.map((l) => (
+              <li><a href={l.href} class="text-sm text-ink-2 hover:text-accent">{l.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="mt-10 pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p class="text-xs text-muted">© {year} CircuitSimulate. Simulation runs entirely in your browser.</p>
+      <p class="text-xs text-muted tnum">Real MNA solver · DC · Transient · AC</p>
+    </div>
+  </div>
+</footer>

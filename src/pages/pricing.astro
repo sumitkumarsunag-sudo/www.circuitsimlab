@@ -1,0 +1,145 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqs = [
+  {
+    q: 'Is it really free?',
+    a: 'Yes. Every feature — the editor, DC, transient and AC analysis, all components, the oscilloscope and multimeter, saving, sharing and exporting — is free with no usage limits and no trial clock.',
+  },
+  {
+    q: 'Do I need an account?',
+    a: 'No. There is no sign-up and no login. Open the simulator and start building. Nothing gates the tool behind an email address.',
+  },
+  {
+    q: 'Where is my data stored?',
+    a: 'Entirely in your browser. Circuits are saved to IndexedDB on your own device and simulations run client-side. Nothing is uploaded to a server unless you explicitly create a share link, which encodes the circuit in the URL itself.',
+  },
+  {
+    q: 'How is a free tool sustainable?',
+    a: 'CircuitSimulate is a static site with the solver running in your browser, so serving it costs almost nothing. There are no per-user compute bills to cover, which is exactly why the free plan can stay genuinely free.',
+  },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+const included = [
+  'Full schematic editor with snapping grid',
+  'DC operating point, transient and AC analysis',
+  'The complete component library',
+  'Oscilloscope and multimeter instruments',
+  'Save projects locally (IndexedDB)',
+  'Shareable links — circuit encoded in the URL',
+  'Export circuits as JSON',
+  'No account, no ads, no usage limits',
+];
+---
+
+<Layout
+  title="Pricing — CircuitSimulate"
+  description="CircuitSimulate is free. The full circuit simulator — real DC, transient and AC analysis, all components, scope and multimeter, save, share and export — at $0, no account required."
+  path="/pricing"
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 text-center md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Pricing</p>
+      <h1 class="mx-auto mt-3 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl">
+        The whole simulator, for <span class="text-accent">$0</span>.
+      </h1>
+      <p class="mx-auto mt-5 max-w-xl text-lg text-ink-2">
+        No trial, no tiers, no locked features. Everything CircuitSimulate does is free, and
+        because your circuits run on your own machine, there is nothing to meter.
+      </p>
+    </div>
+  </section>
+
+  <!-- Plans -->
+  <section class="container-page py-16 md:py-20">
+    <div class="grid gap-6 md:grid-cols-2">
+      <!-- Free -->
+      <div class="rounded-lg border border-line-strong bg-paper p-8">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-lg font-semibold tracking-tight">Free</h2>
+          <span class="tnum text-xs uppercase tracking-wide text-ok">Available now</span>
+        </div>
+        <p class="mt-4 flex items-baseline gap-1.5">
+          <span class="tnum text-5xl font-semibold">$0</span>
+          <span class="text-sm text-muted">forever</span>
+        </p>
+        <p class="mt-3 text-sm text-ink-2">Everything you need to design, simulate and understand a circuit.</p>
+        <a href="/simulator" class="btn btn-primary mt-6 w-full justify-center text-base">Open the simulator</a>
+        <ul class="mt-7 space-y-2.5">
+          {included.map((item) => (
+            <li class="flex gap-2.5 text-sm text-ink-2">
+              <svg class="mt-0.5 shrink-0 text-accent" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Pro (teaser) -->
+      <div class="rounded-lg border border-line bg-surface p-8">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-lg font-semibold tracking-tight text-ink-2">Pro</h2>
+          <span class="tnum text-xs uppercase tracking-wide text-muted">Coming soon</span>
+        </div>
+        <p class="mt-4 flex items-baseline gap-1.5">
+          <span class="tnum text-5xl font-semibold text-muted">—</span>
+        </p>
+        <p class="mt-3 text-sm text-ink-2">
+          We are exploring optional team features — cloud sync across devices and shared
+          workspaces for classes and design teams. It is not yet available, so there is nothing
+          to buy today.
+        </p>
+        <button type="button" class="btn btn-ghost mt-6 w-full justify-center text-base" disabled aria-disabled="true">
+          Not yet available
+        </button>
+        <ul class="mt-7 space-y-2.5">
+          {['Everything in Free', 'Cloud sync across your devices', 'Shared team workspaces', 'Classroom management'].map((item) => (
+            <li class="flex gap-2.5 text-sm text-muted">
+              <svg class="mt-0.5 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+              </svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-6 text-xs text-muted">
+          Want to be told when Pro lands? <a href="/contact" class="prose-link">Get in touch</a>.
+        </p>
+      </div>
+    </div>
+    <p class="mt-6 text-center text-sm text-muted">
+      The free plan is not a stripped-down version. It is the whole tool. See what it can do in the
+      <a href="/examples" class="prose-link">example circuits</a>.
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-line bg-surface">
+    <div class="container-page py-16 md:py-20">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+      <dl class="mt-8 max-w-2xl divide-y divide-line">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="font-semibold">{f.q}</dt>
+            <dd class="mt-1.5 text-sm text-ink-2">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+</Layout>

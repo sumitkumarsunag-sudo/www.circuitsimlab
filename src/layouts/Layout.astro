@@ -1,0 +1,45 @@
+---
+import '../styles/global.css';
+import Seo from '../components/site/Seo.astro';
+import Header from '../components/site/Header.astro';
+import Footer from '../components/site/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+  noindex?: boolean;
+  ogType?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Full-bleed layout with no marketing header/footer (the simulator app). */
+  bare?: boolean;
+}
+const { bare = false, ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="generator" content={Astro.generator} />
+    <Seo {...seo} />
+  </head>
+  <body class:list={[bare && 'overflow-hidden']}>
+    {bare ? (
+      <slot />
+    ) : (
+      <>
+        <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-white">Skip to content</a>
+        <Header />
+        <main id="main">
+          <slot />
+        </main>
+        <Footer />
+      </>
+    )}
+  </body>
+</html>

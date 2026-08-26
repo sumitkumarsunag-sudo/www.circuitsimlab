@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqs = [
+  {
+    q: 'What is the RC time constant?',
+    a: 'It is τ = R × C, the time a capacitor takes to reach about 63% of its final voltage when charging through a resistor. After five time constants it is roughly 99% charged — effectively settled.',
+  },
+  {
+    q: 'Can I see the charging curve?',
+    a: 'Yes. Run a transient analysis and the voltage probe traces Vc(t) = Vs·(1 − e^(−t/τ)) on the oscilloscope in real time. It is a solved curve, not a drawn one.',
+  },
+  {
+    q: 'How do I pick R and C for a target time?',
+    a: 'Any R and C whose product gives your target τ will do; the choice trades current draw against capacitor size. The RC time constant calculator turns R and C into τ and the 63% and 99% times instantly.',
+  },
+  {
+    q: 'Does it handle discharging too?',
+    a: 'Yes. The same exponential governs discharge — the capacitor falls to 37% of its start after one time constant. Build the discharge path and run the transient to watch it decay.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CircuitSimulate — RC Circuit Simulator',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description:
+      'Simulate RC circuits in the browser: charge and discharge a capacitor through a resistor, watch the exponential on the scope, and compute the time constant.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="RC circuit simulator — charge, discharge and time constant"
+  description="Simulate RC circuits online. Charge and discharge a capacitor through a resistor, watch the exponential curve on the oscilloscope, and compute the time constant τ = R × C. Free."
+  path="/rc-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">RC circuit simulator</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        Watch a capacitor charge, one time constant at a time.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        The RC charging curve is the first exponential every electronics student meets. Build the loop,
+        run a transient analysis, and the scope traces it live — with the maths matching the plot.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/examples/rc-charging" class="btn btn-ghost text-base">Open the RC example</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">The time constant, at a glance</h2>
+    <p class="mt-3 max-w-2xl text-ink-2">
+      With R in kΩ and C in µF, the time constant τ = R × C comes out directly in milliseconds — so
+      10 kΩ and 10 µF give exactly 100 ms.
+    </p>
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        ['1τ', '63.2%'],
+        ['2τ', '86.5%'],
+        ['3τ', '95.0%'],
+        ['5τ', '99.3%'],
+      ].map(([k, v]) => (
+        <div class="rounded-md border border-line bg-paper p-5 text-center">
+          <div class="tnum text-2xl font-semibold text-accent">{v}</div>
+          <div class="tnum mt-1 text-xs text-muted">charged after {k}</div>
+        </div>
+      ))}
+    </div>
+    <div class="mt-8 flex flex-wrap gap-4 text-sm">
+      <a href="/tools/rc-time-constant" class="prose-link">RC time constant calculator →</a>
+      <a href="/examples/rc-charging" class="prose-link">Charging example on the scope →</a>
+      <a href="/components" class="prose-link">Component library →</a>
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+      <dl class="mt-8 max-w-3xl divide-y divide-line">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="font-semibold text-ink">{f.q}</dt>
+            <dd class="mt-2 text-ink-2">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+      <a href="/simulator" class="btn btn-primary mt-10 text-base">Build an RC circuit</a>
+    </div>
+  </section>
+</Layout>

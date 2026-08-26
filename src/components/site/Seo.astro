@@ -1,0 +1,52 @@
+---
+/**
+ * Centralised <head> SEO: canonical, description, Open Graph, Twitter card and
+ * optional JSON-LD blocks. Every page passes a title/description; structured
+ * data (SoftwareApplication, FAQ, Breadcrumb, Article) is opt-in per page.
+ */
+const SITE = 'https://circuitsimulate.com';
+const NAME = 'CircuitSimulate';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string; // absolute path, e.g. "/simulator"
+  noindex?: boolean;
+  ogType?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+const {
+  title,
+  description,
+  path = new URL(Astro.request.url).pathname,
+  noindex = false,
+  ogType = 'website',
+  jsonLd,
+} = Astro.props;
+
+const canonical = SITE + (path === '/' ? '/' : path.replace(/\/$/, ''));
+const fullTitle = path === '/' ? title : `${title} · ${NAME}`;
+const ogImage = `${SITE}/og-default.svg`;
+const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex,nofollow" />}
+
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={NAME} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{blocks.map((b) => (
+  <script type="application/ld+json" set:html={JSON.stringify(b)} />
+))}

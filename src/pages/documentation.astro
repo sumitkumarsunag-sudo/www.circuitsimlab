@@ -1,0 +1,171 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const shortcuts = [
+  ['Delete or Backspace', 'Delete the selection'],
+  ['R', 'Rotate the selected component'],
+  ['F', 'Flip the selected component'],
+  ['Ctrl + Z', 'Undo'],
+  ['Ctrl + Shift + Z or Ctrl + Y', 'Redo'],
+  ['Ctrl + C', 'Copy'],
+  ['Ctrl + V', 'Paste'],
+  ['Ctrl + D', 'Duplicate'],
+  ['Ctrl + S', 'Save the project'],
+  ['W', 'Wire tool'],
+  ['V', 'Select tool'],
+  ['G', 'Toggle the grid'],
+  ['+ / −', 'Zoom in / out'],
+  ['Esc', 'Cancel or deselect'],
+  ['Alt + drag or middle-drag', 'Pan the canvas'],
+  ['Mouse wheel', 'Zoom'],
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: 'CircuitSimulate Documentation',
+  description:
+    'How to use CircuitSimulate: getting started, the toolbar and panels, keyboard shortcuts, simulation modes, measurement, and saving, sharing and exporting.',
+};
+---
+
+<Layout
+  title="Documentation — CircuitSimulate"
+  description="How to use CircuitSimulate: getting started, toolbar and panels, keyboard shortcuts, DC/transient/AC simulation, the multimeter and oscilloscope, and saving, sharing and exporting."
+  path="/documentation"
+  jsonLd={jsonLd}
+>
+  <section class="container-page py-12 md:py-16">
+    <div class="doc max-w-3xl">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Docs</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Documentation</h1>
+      <p>
+        Everything you need to go from a blank canvas to a solved circuit. New here? Jump straight
+        to the <a href="/simulator">simulator</a>, open an <a href="/examples">example</a>, or
+        browse the <a href="/components">component library</a>. For the theory behind the parts, the
+        <a href="/learn">learn guides</a> go deeper.
+      </p>
+
+      <h2 id="getting-started">Getting started</h2>
+      <p>Five steps get you to a working simulation:</p>
+      <ul>
+        <li>Open the <a href="/simulator">simulator</a>.</li>
+        <li>Place a component by dragging it from the palette onto the grid, or click it and click the canvas.</li>
+        <li>Wire terminal to terminal — click one pin, then the matching pin on another part. Wires snap and route orthogonally.</li>
+        <li>Add a <strong>ground</strong>. Every circuit needs a reference node; without one the solver has nothing to measure voltages against.</li>
+        <li>Press <strong>Run</strong>. The solver computes the result and draws current, node voltages and any waveforms back onto your schematic.</li>
+      </ul>
+
+      <h2 id="toolbar-panels">The toolbar and panels</h2>
+      <p>
+        The workspace is a single canvas with a few surrounding surfaces:
+      </p>
+      <h3>Component palette</h3>
+      <p>
+        The catalogue of parts you can place — sources, passives, semiconductors, instruments and
+        more. Each part is documented in the <a href="/components">component library</a> if you
+        want its model and parameters.
+      </p>
+      <h3>Toolbar</h3>
+      <p>
+        Holds the <strong>select</strong> and <strong>wire</strong> tools, rotate and flip, undo and
+        redo, zoom, grid toggle, and the <strong>Run</strong> control with its analysis-mode picker.
+      </p>
+      <h3>Properties panel</h3>
+      <p>
+        Select a component to edit its values here — resistance, capacitance, source voltage,
+        frequency, and so on. Changes take effect the next time you run.
+      </p>
+      <h3>Results panel</h3>
+      <p>
+        Where numeric output and plots appear after a run: the operating point, transient traces and
+        AC magnitude/phase, plus readings from any instruments on the canvas.
+      </p>
+
+      <h2 id="shortcuts">Keyboard shortcuts</h2>
+      <p>The editor is built to be driven from the keyboard. Modifier keys follow your platform's convention.</p>
+      <div class="not-prose overflow-x-auto">
+        <table class="mt-4 w-full border-collapse text-sm">
+          <caption class="sr-only">CircuitSimulate keyboard shortcuts</caption>
+          <thead>
+            <tr class="border-b border-line-strong text-left">
+              <th scope="col" class="py-2 pr-6 font-semibold">Shortcut</th>
+              <th scope="col" class="py-2 font-semibold">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {shortcuts.map(([keys, action]) => (
+              <tr class="border-b border-line">
+                <td class="tnum py-2 pr-6 align-top text-ink whitespace-nowrap">{keys}</td>
+                <td class="py-2 align-top text-ink-2">{action}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="simulation-modes">Simulation modes</h2>
+      <p>Pick a mode from the Run control before you simulate:</p>
+      <h3>DC operating point</h3>
+      <p>
+        Solves the steady state: the node voltages and branch currents once everything has settled.
+        This is the fastest check that a circuit biases the way you intend.
+      </p>
+      <h3>Transient</h3>
+      <p>
+        Steps the circuit through time so you can watch it respond — capacitors charging, an
+        oscillator starting, a signal propagating. You choose the time span and step; the results
+        panel plots each traced signal against time.
+      </p>
+      <h3>AC</h3>
+      <p>
+        Sweeps a small-signal source across a frequency range and reports magnitude and phase — the
+        frequency response of filters, amplifiers and other linear behaviour.
+      </p>
+
+      <h2 id="measurement">Measurement</h2>
+      <p>You read a circuit the same way you would on a bench, with instruments you drop onto the canvas.</p>
+      <h3>Multimeter</h3>
+      <p>
+        Place a multimeter to read a single value — a node voltage or a branch current — as a clear
+        numeric display. Handy for confirming a bias point at a glance.
+      </p>
+      <h3>Oscilloscope</h3>
+      <p>
+        Attach <strong>voltage probes</strong> across two points or <strong>current probes</strong>
+        on a branch, and the scope plots them over time with real time/div and volt/div controls.
+        It is the natural companion to a transient run.
+      </p>
+
+      <h2 id="saving-sharing">Saving, sharing and exporting</h2>
+      <h3>Save</h3>
+      <p>
+        Press <code>Ctrl + S</code> to save the project. It is written to your browser's storage
+        (IndexedDB) on your own device — see the <a href="/privacy">privacy policy</a> for exactly
+        what that means.
+      </p>
+      <h3>Share</h3>
+      <p>
+        Create a share link and the whole circuit is encoded in the URL itself. Send the link and
+        the recipient opens your exact schematic — nothing is stored on a server in between.
+      </p>
+      <h3>Export</h3>
+      <p>
+        Export a circuit as <code>JSON</code> to keep a portable backup or move it between machines.
+        The file downloads straight to your device.
+      </p>
+
+      <h2 id="local">Everything runs locally</h2>
+      <p>
+        Worth repeating: the editor, the solver and your saved projects all live in your browser.
+        Nothing is uploaded as you work, and after your first visit the simulator keeps working even
+        without a connection.
+      </p>
+
+      <p class="mt-8">
+        Ready to build something? <a href="/simulator">Open the simulator</a> or start from an
+        <a href="/examples">example circuit</a>.
+      </p>
+    </div>
+  </section>
+</Layout>

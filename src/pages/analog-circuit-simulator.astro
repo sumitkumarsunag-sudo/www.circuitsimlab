@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const analyses = [
+  ['DC operating point', 'Find the steady-state node voltages and branch currents — bias points, divider outputs, quiescent currents.'],
+  ['Transient', 'Watch the circuit evolve in time: capacitors charging, inductors ramping, RC and RL responses on the scope.'],
+  ['AC sweep', 'Sweep frequency to see gain and phase — filter roll-off, resonance and the response of reactive networks.'],
+];
+
+const parts = ['Resistors', 'Capacitors', 'Inductors', 'Diodes', 'LEDs', 'DC sources', 'AC sources', 'Batteries'];
+
+const faqs = [
+  {
+    q: 'What analog components are supported?',
+    a: 'Resistors, capacitors, inductors, diodes and LEDs, plus DC and AC sources, batteries and ground. That covers passive networks, rectifiers, filters and biasing.',
+  },
+  {
+    q: 'Can it do AC frequency response?',
+    a: 'Yes. The AC analysis sweeps frequency and reports the response of the reactive network, so you can see how a filter rolls off or where an RLC circuit resonates.',
+  },
+  {
+    q: 'How accurate is the analog simulation?',
+    a: 'It uses modified nodal analysis — the same formulation SPICE is built on. Diodes are solved with a nonlinear model via Newton iteration, so operating points are physically meaningful.',
+  },
+  {
+    q: 'Does it handle transient behaviour?',
+    a: 'Yes. Transient analysis integrates the circuit over time, so you can watch capacitors and inductors respond and plot the result on the oscilloscope.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CircuitSimulate — Analog Circuit Simulator',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description:
+      'A free analog circuit simulator with DC, transient and AC analysis for resistors, capacitors, inductors, diodes and sources — in the browser.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Analog circuit simulator — DC, transient and AC analysis"
+  description="A free analog circuit simulator for resistors, capacitors, inductors, diodes and sources. Run DC operating point, transient and AC sweeps in your browser and read the results."
+  path="/analog-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Analog circuit simulator</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        Solve analog circuits — DC, transient and AC.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        Passive networks, RC and RL responses, diode circuits and frequency sweeps. Build the
+        schematic, choose the analysis, and read voltages, currents and waveforms straight from the
+        solver.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/examples/rc-charging" class="btn btn-ghost text-base">See an RC response</a>
+      </div>
+      <div class="mt-8 flex flex-wrap gap-2">
+        {parts.map((p) => (
+          <span class="tnum rounded border border-line bg-paper px-2 py-1 text-xs text-ink-2">{p}</span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Three analyses, one canvas</h2>
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      {analyses.map(([t, d]) => (
+        <div class="rounded-md border border-line bg-paper p-5">
+          <h3 class="font-semibold text-ink">{t}</h3>
+          <p class="mt-1.5 text-sm text-ink-2">{d}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">A solver you can trust</h2>
+      <p class="mt-3 max-w-2xl text-ink-2">
+        Modified nodal analysis builds the circuit equations directly from your schematic; nonlinear
+        parts like diodes are resolved with Newton iteration. The current animated on the wires and the
+        node colours are read straight from that solution — nothing is faked for effect.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-4 text-sm">
+        <a href="/examples/voltage-divider" class="prose-link">Voltage divider →</a>
+        <a href="/tools/voltage-divider-calculator" class="prose-link">Divider calculator →</a>
+        <a href="/components" class="prose-link">Component library →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-14 md:py-16">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+    <dl class="mt-8 max-w-3xl divide-y divide-line">
+      {faqs.map((f) => (
+        <div class="py-5">
+          <dt class="font-semibold text-ink">{f.q}</dt>
+          <dd class="mt-2 text-ink-2">{f.a}</dd>
+        </div>
+      ))}
+    </dl>
+    <a href="/simulator" class="btn btn-primary mt-10 text-base">Open the analog simulator</a>
+  </section>
+</Layout>

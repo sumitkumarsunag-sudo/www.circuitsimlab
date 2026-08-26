@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqs = [
+  {
+    q: 'Why does an LED need a series resistor?',
+    a: 'An LED is a diode: once it passes its forward voltage, its current rises almost without limit and it destroys itself. A series resistor sets the current by dropping the difference between the supply and the forward voltage.',
+  },
+  {
+    q: 'How do I choose the resistor value?',
+    a: 'Use R = (Vsupply − Vf) / If. Pick your target current (often 5–20 mA), read the LED forward voltage, and the resistor value follows. The LED resistor calculator does it and rounds to the nearest standard part.',
+  },
+  {
+    q: 'Does the LED actually light in the simulator?',
+    a: 'Yes — by real forward current. The LED is solved with a diode model, so it brightens when the operating point pushes enough current through it, not on a fixed timer.',
+  },
+  {
+    q: 'What forward voltage should I use?',
+    a: 'Roughly 1.8–2.2 V for red, 2.0–2.4 V for green and yellow, and 3.0–3.4 V for blue and white. Use the datasheet value when you have it; it matters most on low supplies.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CircuitSimulate — LED Circuit Simulator',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description:
+      'Simulate LED circuits in the browser: size the current-limiting resistor, solve the operating point with a real diode model, and watch the LED light by actual forward current.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="LED circuit simulator — size the resistor and see it light"
+  description="Simulate LED circuits online. Size the current-limiting resistor, solve the operating point with a real diode model, and watch the LED light by actual forward current. Free, no sign-up."
+  path="/led-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">LED circuit simulator</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        Get the LED resistor right — then watch it light.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        The most common first circuit, done properly. Size the current-limiting resistor, solve the
+        operating point with a real diode model, and see the LED brighten by the current that actually
+        flows through it.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/examples/led-resistor" class="btn btn-ghost text-base">Open the LED example</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <div class="grid gap-10 md:grid-cols-2 md:items-center">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Sizing the current-limiting resistor</h2>
+        <p class="mt-3 text-ink-2">
+          The resistor drops the difference between your supply and the LED forward voltage, and that
+          drop divided by your target current is the resistance you need:
+        </p>
+        <p class="tnum mt-4 rounded-md border border-line bg-surface px-4 py-3 text-sm text-ink">
+          R = (Vsupply − Vf) / If
+        </p>
+        <p class="mt-4 text-ink-2">
+          For a 5 V supply, a red LED at about 2 V, and 15 mA, that is roughly 200 Ω — so a standard
+          220 Ω part sits it safely just under target.
+        </p>
+        <div class="mt-6 flex flex-wrap gap-4 text-sm">
+          <a href="/tools/led-resistor-calculator" class="prose-link">LED resistor calculator →</a>
+          <a href="/examples/led-resistor" class="prose-link">Worked example circuit →</a>
+        </div>
+      </div>
+      <div class="rounded-lg border border-line bg-paper p-5">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-faint">Typical forward voltages</h3>
+        <dl class="mt-3 space-y-2 text-sm">
+          {[
+            ['Red', '1.8 – 2.2 V'],
+            ['Green / yellow', '2.0 – 2.4 V'],
+            ['Blue / white', '3.0 – 3.4 V'],
+          ].map(([k, v]) => (
+            <div class="flex items-baseline justify-between border-b border-line/60 pb-2">
+              <dt class="text-ink-2">{k}</dt>
+              <dd class="tnum font-medium">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="mt-3 text-xs text-muted">Check the datasheet for your exact part.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+      <dl class="mt-8 max-w-3xl divide-y divide-line">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="font-semibold text-ink">{f.q}</dt>
+            <dd class="mt-2 text-ink-2">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+      <a href="/simulator" class="btn btn-primary mt-10 text-base">Build an LED circuit</a>
+    </div>
+  </section>
+</Layout>

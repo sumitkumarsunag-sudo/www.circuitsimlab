@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'About CircuitSimulate',
+  description:
+    'CircuitSimulate is a free, browser-based circuit simulator built on a real modified-nodal-analysis solver that runs DC, transient and AC analysis client-side.',
+};
+
+const principles = [
+  {
+    t: 'Every number is solved',
+    d: 'No scripted animations or canned results. A modified-nodal-analysis solver — the same math SPICE uses — builds the conductance matrix and solves the circuit. What you read is what the analysis returns.',
+  },
+  {
+    t: 'Fast by construction',
+    d: 'The site is static HTML that loads instantly. The app is a single interactive canvas island, and the solver runs in a Web Worker so the interface never stutters while a transient sweep is grinding.',
+  },
+  {
+    t: 'Your circuits stay yours',
+    d: 'Projects are saved locally in your browser. Nothing is uploaded, there is no account, and a share link carries the whole circuit in the URL rather than on our servers.',
+  },
+];
+---
+
+<Layout
+  title="About — CircuitSimulate"
+  description="Why CircuitSimulate exists: a real browser-based circuit simulator with an actual MNA solver running DC, transient and AC analysis in a Web Worker. Build. Simulate. Understand."
+  path="/about"
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">About</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl">
+        Build. Simulate. Understand.
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-ink-2">
+        CircuitSimulate is a real electronics lab that lives in a browser tab. You draw a schematic,
+        press run, and a genuine solver works out the voltages and currents — then draws them back
+        onto the wires you built.
+      </p>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="container-page py-16 md:py-20">
+    <div class="doc max-w-3xl">
+      <h2>Why we built it</h2>
+      <p>
+        Most "circuit simulators" you find in a browser are really diagrams that light up on cue.
+        They look convincing until you change a resistor value and nothing moves the way physics
+        says it should. We wanted the opposite: a tool that is honest about the math, quick to
+        open, and pleasant enough that you reach for it before wiring up a breadboard.
+      </p>
+      <p>
+        So the core of CircuitSimulate is a <strong>modified-nodal-analysis (MNA)</strong> engine —
+        the same approach that powers SPICE. It assembles the system of equations for your circuit
+        and solves it for a <strong>DC operating point</strong>, steps it through time for
+        <strong>transient analysis</strong>, and sweeps frequency for <strong>AC analysis</strong>.
+        There are no fake animations layered on top; the animated current you see is drawn from the
+        current the solver actually computed.
+      </p>
+
+      <h2>How it is put together</h2>
+      <p>
+        The whole site is static and served as plain HTML, so pages appear the moment you ask for
+        them. The simulator itself is a single interactive island — one focused canvas app rather
+        than a page bloated with widgets. Heavy work happens in a
+        <strong>Web Worker</strong>, which keeps the solver off the main thread so panning, zooming
+        and editing stay smooth even mid-analysis.
+      </p>
+      <p>
+        The engine is deliberately independent of the interface. It is unit-tested on its own terms,
+        which means the numbers can be trusted regardless of what the UI happens to be drawing. That
+        separation is why we can promise that a reading on the multimeter is a solved result, not a
+        prop.
+      </p>
+
+      <h2>Where your data lives</h2>
+      <p>
+        Nothing you build leaves your machine unless you decide it should. Projects are stored in
+        your browser with <strong>IndexedDB</strong>, simulations run entirely client-side, and a
+        share link encodes the circuit in the URL fragment — which never even reaches a server. No
+        account, no tracking, no upload. Privacy here is a consequence of the architecture, not a
+        policy bolted on afterward. The details are in our <a href="/privacy">privacy policy</a>.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-x-10 gap-y-8 sm:grid-cols-3">
+      {principles.map((p) => (
+        <div class="border-t border-line pt-4">
+          <h3 class="font-semibold">{p.t}</h3>
+          <p class="mt-1.5 text-sm text-ink-2">{p.d}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-line bg-surface">
+    <div class="container-page py-16 text-center md:py-20">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">See it solve something.</h2>
+      <p class="mx-auto mt-3 max-w-md text-ink-2">
+        Open a blank canvas, or start from one of the worked example circuits.
+      </p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/examples" class="btn btn-ghost text-base">Browse examples</a>
+      </div>
+    </div>
+  </section>
+</Layout>

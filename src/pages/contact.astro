@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const email = 'hello@circuitsimulate.com';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact CircuitSimulate',
+  description: 'Get in touch with the team behind CircuitSimulate.',
+};
+---
+
+<Layout
+  title="Contact — CircuitSimulate"
+  description="Reach the CircuitSimulate team. Email us with questions, bug reports or feedback — we read everything."
+  path="/contact"
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Contact</p>
+      <h1 class="mt-3 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl">
+        Say hello.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        Questions, bug reports and feature ideas are all welcome. There is no ticket queue and no
+        chatbot — messages reach the people who build the simulator.
+      </p>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <div class="grid gap-12 md:grid-cols-2 md:gap-16">
+      <!-- Ways to reach us -->
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight">Ways to reach us</h2>
+
+        <div class="mt-6 border-t border-line pt-4">
+          <h3 class="text-sm font-semibold">Email</h3>
+          <p class="mt-1.5 text-sm text-ink-2">The most reliable way to get a reply.</p>
+          <a href={`mailto:${email}`} class="tnum mt-2 inline-block text-accent hover:underline">{email}</a>
+        </div>
+
+        <div class="mt-6 border-t border-line pt-4">
+          <h3 class="text-sm font-semibold">Found a bug?</h3>
+          <p class="mt-1.5 text-sm text-ink-2">
+            If a simulation returns something that looks wrong, tell us what you built and what you
+            expected. A share link from the simulator is the fastest way to hand us the exact
+            circuit — it encodes everything in the URL.
+          </p>
+          <a href={`mailto:${email}?subject=Bug%20report`} class="btn btn-ghost mt-3">Report a bug</a>
+        </div>
+
+        <div class="mt-6 border-t border-line pt-4">
+          <h3 class="text-sm font-semibold">Feedback and ideas</h3>
+          <p class="mt-1.5 text-sm text-ink-2">
+            Missing a component? Wish a panel worked differently? We would rather hear it than not.
+            The <a href="/documentation" class="prose-link">documentation</a> is a good place to
+            confirm current behaviour first.
+          </p>
+        </div>
+      </div>
+
+      <!-- Simple mailto form -->
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight">Send a message</h2>
+        <p class="mt-2 text-sm text-muted">
+          This form opens your own email client — nothing is sent to a server here.
+        </p>
+        <form
+          action={`mailto:${email}`}
+          method="post"
+          enctype="text/plain"
+          class="mt-6 space-y-5"
+        >
+          <div>
+            <label for="name" class="block text-sm font-medium text-ink">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              autocomplete="name"
+              class="mt-1.5 w-full rounded border border-line-strong bg-paper px-3 py-2 text-sm text-ink focus:border-accent"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-ink">Your email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              class="mt-1.5 w-full rounded border border-line-strong bg-paper px-3 py-2 text-sm text-ink focus:border-accent"
+            />
+          </div>
+          <div>
+            <label for="message" class="block text-sm font-medium text-ink">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="6"
+              required
+              class="mt-1.5 w-full rounded border border-line-strong bg-paper px-3 py-2 text-sm text-ink focus:border-accent"
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary text-base">Open in email</button>
+        </form>
+        <p class="mt-4 text-xs text-muted">
+          Prefer to write it yourself? Email <a href={`mailto:${email}`} class="prose-link">{email}</a> directly.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

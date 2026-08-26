@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="0" cy="0" r="1.5" fill="#cbd5e1"/>
+    </pattern>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f6f8fb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.6"/>
+
+  <!-- circuit motif -->
+  <g stroke="#0b1220" stroke-width="6" fill="none" stroke-linecap="round">
+    <path d="M120 470 H520"/><path d="M520 470 V300"/><path d="M520 300 H120"/><path d="M120 300 V470"/>
+  </g>
+  <g stroke="#e0a32e" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="10 18">
+    <path d="M120 470 H520"/><path d="M520 470 V300"/><path d="M520 300 H120"/><path d="M120 300 V470"/>
+  </g>
+  <circle cx="120" cy="300" r="7" fill="#d64545"/>
+  <circle cx="520" cy="300" r="7" fill="#2f6fed"/>
+
+  <!-- wordmark -->
+  <text x="640" y="270" font-family="ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif" font-size="76" font-weight="700" fill="#0b1220">CircuitSimulate</text>
+  <text x="642" y="340" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="34" fill="#0e7490">Build. Simulate. Understand.</text>
+  <text x="642" y="410" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" fill="#6a7788">Free online circuit simulator — real DC, transient &amp; AC analysis</text>
+</svg>

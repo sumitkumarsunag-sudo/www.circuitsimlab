@@ -1,0 +1,44 @@
+---
+/**
+ * CircuitSimulate wordmark + node/trace glyph.
+ *
+ * The glyph is an original mark: three solder nodes joined by orthogonal
+ * traces that route into an open "C" — connectivity, resolved. No gradients,
+ * no bevels; it reads at 20px in the header and scales to hero size.
+ */
+interface Props {
+  size?: number;
+  showWord?: boolean;
+  class?: string;
+}
+const { size = 24, showWord = true, class: cls = '' } = Astro.props;
+---
+
+<span class:list={['inline-flex items-center gap-2.5', cls]}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 32 32"
+    fill="none"
+    aria-hidden="true"
+    class="shrink-0"
+  >
+    <!-- orthogonal traces -->
+    <path
+      d="M23 8 H12 a4 4 0 0 0 -4 4 v8 a4 4 0 0 0 4 4 h11"
+      stroke="var(--color-accent)"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      fill="none"
+    />
+    <!-- solder nodes -->
+    <circle cx="23" cy="8" r="3.2" fill="var(--color-accent)" />
+    <circle cx="23" cy="24" r="3.2" fill="var(--color-ink)" />
+    <circle cx="8" cy="16" r="2.6" fill="var(--color-signal)" />
+  </svg>
+  {showWord && (
+    <span class="font-semibold tracking-tight text-[1.02rem] text-ink">
+      Circuit<span class="text-accent">Simulate</span>
+    </span>
+  )}
+</span>

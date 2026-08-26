@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { EXAMPLES } from '../../lib/content/examples.ts';
+import { renderSymbolInner } from '../../lib/components/renderSymbol.ts';
+import { getComponentDef } from '../../lib/components/registry.ts';
+import { terminalPosition } from '../../lib/circuit/types.ts';
+
+// Group by category, preserving first-seen order.
+const cats: string[] = [];
+for (const e of EXAMPLES) if (!cats.includes(e.category)) cats.push(e.category);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: EXAMPLES.map((e, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: e.title,
+    url: `https://circuitsimulate.com/examples/${e.slug}`,
+  })),
+};
+
+// Bounds for a small thumbnail of each circuit.
+function thumb(circuit: ReturnType<(typeof EXAMPLES)[number]['build']>) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const grow = (x: number, y: number) => { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); };
+  for (const w of circuit.wires) { grow(w.x1, w.y1); grow(w.x2, w.y2); }
+  for (const c of circuit.components) { grow(c.x, c.y); }
+  const pad = 50;
+  return `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
+}
+---
+
+<Layout
+  title="Example Circuits — Learn by Simulating | CircuitSimulate"
+  description="A growing library of worked circuits — Ohm's law, voltage dividers, LED drivers, RC charging and more. Each one opens live in the simulator with real, solved results."
+  path="/examples"
+  jsonLd={jsonLd}
+>
+  <div class="container-page py-12 md:py-16">
+    <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Example circuits</p>
+    <h1 class="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Circuits you can open and run</h1>
+    <p class="mt-3 max-w-2xl text-ink-2">
+      Each example is a real, solvable circuit — not a screenshot. Open one in the simulator and the
+      numbers you see are what the analysis returns.
+    </p>
+
+    {cats.map((cat) => (
+      <section class="mt-12">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-faint">{cat}</h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {EXAMPLES.filter((e) => e.category === cat).map((e) => {
+            const circuit = e.build();
+            return (
+              <a href={`/examples/${e.slug}`} class="group flex flex-col rounded-lg border border-line bg-paper transition-colors hover:border-accent">
+                <div class="border-b border-line bg-surface/60">
+                  <svg viewBox={thumb(circuit)} class="h-40 w-full p-3">
+                    {circuit.wires.map((w) => (
+                      <line x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} stroke="var(--color-ink)" stroke-width="2" stroke-linecap="round" />
+                    ))}
+                    {circuit.components.map((comp) => {
+                      const def = getComponentDef(comp.kind)!;
+                      const inner = renderSymbolInner(def.symbol, { stroke: 'var(--color-ink)', strokeWidth: 2 });
+                      return (
+                        <g transform={`translate(${comp.x} ${comp.y}) rotate(${comp.rotation}) scale(${comp.flip ? -1 : 1} 1)`} set:html={inner} />
+                      );
+                    })}
+                  </svg>
+                </div>
+                <div class="flex flex-1 flex-col p-4">
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-semibold group-hover:text-accent">{e.title}</h3>
+                    <span class="tnum ml-auto rounded bg-surface-2 px-1.5 py-0.5 text-[0.65rem] uppercase text-muted">{e.mode}</span>
+                  </div>
+                  <p class="mt-1.5 text-sm text-ink-2">{e.summary}</p>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+  </div>
+</Layout>

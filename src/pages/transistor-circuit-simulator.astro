@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const today = [
+  ['Design the bias network', 'Build the resistor divider and load resistors that set a transistor stage’s operating point, and solve the node voltages exactly.'],
+  ['Model the base junction', 'A transistor’s base–emitter is a diode. Simulate that junction with a real diode model to reason about the ~0.7 V drop and where current begins to flow.'],
+  ['Work the DC arithmetic', 'Supply rails, divider voltages, load lines and resistor drops all solve in DC — the numbers you need before adding the active device.'],
+  ['See current and drops', 'Animated current and colour-coded node voltages make the bias conditions visible while you tune resistor values.'],
+];
+
+const faqs = [
+  {
+    q: 'Can I simulate a full BJT or MOSFET amplifier right now?',
+    a: 'Not as first-class parts yet. Transistors are not in the palette as complete active devices, so the simulator will not give you a full small-signal gain figure today. Transistor models are actively being expanded.',
+  },
+  {
+    q: 'Then what is this page honestly good for?',
+    a: 'For everything around the transistor: designing and solving the bias network, understanding the base–emitter diode drop, and working the DC arithmetic of a stage. That groundwork is where most beginners actually get stuck.',
+  },
+  {
+    q: 'Why model the base as a diode?',
+    a: 'Because physically it is one. Using the diode model, you can see the roughly 0.7 V base–emitter drop appear and understand why base current only flows once that threshold is reached.',
+  },
+  {
+    q: 'When will transistors become full simulatable parts?',
+    a: 'Expanded transistor models are on the roadmap. Until then the biasing, diode behaviour and DC analysis you do here carry directly into transistor design once the active device lands.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Transistor circuit simulator',
+    description:
+      'Design and solve transistor bias networks, model the base–emitter diode, and work the DC arithmetic of a stage. Full transistor device models are being expanded.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Transistor circuit simulator — bias networks and diode junctions"
+  description="Design transistor bias networks, model the base–emitter diode, and solve the DC arithmetic of a stage in your browser. Full transistor device models are being expanded."
+  path="/transistor-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Transistor circuit simulator</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        Nail the bias network before the transistor goes in.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        Most transistor circuits live or die on the resistors around them. Design and solve those bias
+        networks here, model the base–emitter junction as the diode it is, and get the DC arithmetic
+        right first.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/components" class="btn btn-ghost text-base">See available parts</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-10">
+    <div class="rounded-lg border border-line-strong bg-surface p-5">
+      <p class="text-sm text-ink-2">
+        <strong class="text-ink">Straight talk:</strong> transistors are not yet full simulatable parts
+        in the palette — their device models are being expanded. This page is about what genuinely works
+        today: the biasing, the diode junctions and the DC groundwork of a transistor stage.
+      </p>
+    </div>
+  </section>
+
+  <section class="container-page pb-16 md:pb-20">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">What you can do today</h2>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2">
+      {today.map(([t, d]) => (
+        <div class="rounded-md border border-line bg-paper p-5">
+          <h3 class="font-semibold text-ink">{t}</h3>
+          <p class="mt-1.5 text-sm text-ink-2">{d}</p>
+        </div>
+      ))}
+    </div>
+    <div class="mt-8 flex flex-wrap gap-4 text-sm">
+      <a href="/examples/voltage-divider" class="prose-link">Bias divider example →</a>
+      <a href="/examples/led-resistor" class="prose-link">Diode behaviour with an LED →</a>
+      <a href="/tools/ohms-law-calculator" class="prose-link">Ohm's law calculator →</a>
+    </div>
+  </section>
+
+  <section class="border-t border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+      <dl class="mt-8 max-w-3xl divide-y divide-line">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="font-semibold text-ink">{f.q}</dt>
+            <dd class="mt-2 text-ink-2">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+      <a href="/simulator" class="btn btn-primary mt-10 text-base">Open the simulator</a>
+    </div>
+  </section>
+</Layout>

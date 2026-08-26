@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const concepts = [
+  ['Resonance', 'Series L and C exchange energy at a natural frequency f₀ = 1 / (2π√(LC)). Sweep frequency with the AC analysis to find the peak.'],
+  ['Damping', 'The resistor bleeds energy out of the oscillation. Too little R and the transient rings; enough R and it settles smoothly.'],
+  ['Frequency response', 'An RLC network passes some frequencies and rejects others — the basis of tuned filters. The AC sweep plots how the response varies.'],
+];
+
+const faqs = [
+  {
+    q: 'How do I build an RLC circuit?',
+    a: 'Drop a resistor, an inductor and a capacitor from the palette and wire them in series or parallel with a source. The solver treats L and C as real reactive elements, so the resonance and damping fall out of the analysis.',
+  },
+  {
+    q: 'Can I find the resonant frequency?',
+    a: 'Run an AC analysis and sweep frequency. The response peaks (series) or dips (parallel) at f₀ = 1 / (2π√(LC)). The resistor sets how sharp that peak is — its quality factor.',
+  },
+  {
+    q: 'Can I see the circuit ring in the time domain?',
+    a: 'Yes. A transient analysis shows the step response: an underdamped RLC circuit oscillates and decays, a critically damped one settles fastest without overshoot, and an overdamped one crawls in slowly.',
+  },
+  {
+    q: 'What sets the damping?',
+    a: 'The resistance, relative to the inductance and capacitance. More resistance means more damping. Adjust R and re-run the transient to move between ringing and a clean settle.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CircuitSimulate — RLC Circuit Simulator',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description:
+      'Simulate RLC circuits in the browser: explore resonance and damping with real R, L and C parts using transient and AC analysis.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="RLC circuit simulator — resonance and damping"
+  description="Simulate RLC circuits online. Explore resonance and damping with real resistor, inductor and capacitor elements using transient and AC frequency-sweep analysis. Free, in-browser."
+  path="/rlc-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">RLC circuit simulator</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        Resonance and damping, from the equations up.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        Put a resistor, an inductor and a capacitor together and the circuit gains a natural frequency
+        and a sense of overshoot. Sweep it in AC to find resonance, or step it in transient to watch it
+        ring and settle.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
+        <a href="/components" class="btn btn-ghost text-base">See R, L and C parts</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">The three ideas an RLC circuit teaches</h2>
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      {concepts.map(([t, d]) => (
+        <div class="rounded-md border border-line bg-paper p-5">
+          <h3 class="font-semibold text-ink">{t}</h3>
+          <p class="mt-1.5 text-sm text-ink-2">{d}</p>
+        </div>
+      ))}
+    </div>
+    <p class="tnum mt-8 rounded-md border border-line bg-surface px-4 py-3 text-sm text-ink">
+      f₀ = 1 / (2π·√(L·C))
+    </p>
+    <div class="mt-6 flex flex-wrap gap-4 text-sm">
+      <a href="/examples/rc-charging" class="prose-link">Start with a simpler RC response →</a>
+      <a href="/tools/rc-time-constant" class="prose-link">Time constant calculator →</a>
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+      <dl class="mt-8 max-w-3xl divide-y divide-line">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="font-semibold text-ink">{f.q}</dt>
+            <dd class="mt-2 text-ink-2">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+      <a href="/simulator" class="btn btn-primary mt-10 text-base">Build an RLC circuit</a>
+    </div>
+  </section>
+</Layout>

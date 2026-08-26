@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const points = [
+  ['No account', 'Nothing to register. Open the page and the canvas is already waiting for you.'],
+  ['No install', 'It runs in the browser — no desktop app, no plugins, no license file to chase.'],
+  ['No paywall', 'DC, transient and AC analysis are all included. There is no locked "pro" analysis.'],
+  ['No upload', 'Your circuit stays on your machine. It only leaves if you generate a share link yourself.'],
+];
+
+const faqs = [
+  {
+    q: 'What is the catch with a free circuit simulator?',
+    a: 'There is no catch. The app is static pages plus one interactive editor, and the solver runs on your own device, so serving it costs little and the analysis features are simply all included.',
+  },
+  {
+    q: 'Is it free for commercial or classroom use?',
+    a: 'Yes. Use it for homework, coursework, prototyping or teaching. Nothing is metered and no sign-in wall appears.',
+  },
+  {
+    q: 'Are any features held back for a paid tier?',
+    a: 'The core analyses — DC operating point, transient and AC — are all available now. New parts and analyses are added over time and shipped to everyone.',
+  },
+  {
+    q: 'Will my circuits stay private?',
+    a: 'By default, yes. Circuits live in your browser. Sharing is opt-in through a link you create, and it encodes the circuit into the URL rather than storing it on a server.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CircuitSimulate — Free Circuit Simulator',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description:
+      'A genuinely free online circuit simulator: real DC, transient and AC analysis with no account, no install and no paywall.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Free circuit simulator — no sign-up, no install, no paywall"
+  description="A genuinely free online circuit simulator. Real DC, transient and AC analysis with a drag-and-drop editor — no account, no download, no locked features. Runs in your browser."
+  path="/free-circuit-simulator"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 md:py-24">
+      <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Free · $0 · always</p>
+      <h1 class="mt-3 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        A free circuit simulator that doesn't hold anything back.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-ink-2">
+        Real analysis, a real schematic editor, and every feature available from the first click. No
+        account to create, no software to install, and no "upgrade to run this" wall.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/simulator" class="btn btn-primary text-base">Start simulating — free</a>
+        <a href="/examples" class="btn btn-ghost text-base">See what it can do</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Free, and here's exactly what that means</h2>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {points.map(([t, d]) => (
+        <div class="rounded-md border border-line bg-paper p-5">
+          <h3 class="font-semibold text-ink">{t}</h3>
+          <p class="mt-1.5 text-sm text-ink-2">{d}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-surface">
+    <div class="container-page py-14 md:py-16">
+      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Under the hood it is the real thing</h2>
+      <p class="mt-3 max-w-2xl text-ink-2">
+        Being free does not mean being a toy. A modified-nodal-analysis solver computes node voltages
+        and branch currents; the current-flow animation on the canvas is driven by those solved
+        numbers. Read them on the built-in oscilloscope and multimeter.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-4 text-sm">
+        <a href="/examples/voltage-divider" class="prose-link">Try the voltage divider →</a>
+        <a href="/components" class="prose-link">Component library →</a>
+        <a href="/tools" class="prose-link">Free calculators →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-14 md:py-16">
+    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Questions</h2>
+    <dl class="mt-8 max-w-3xl divide-y divide-line">
+      {faqs.map((f) => (
+        <div class="py-5">
+          <dt class="font-semibold text-ink">{f.q}</dt>
+          <dd class="mt-2 text-ink-2">{f.a}</dd>
+        </div>
+      ))}
+    </dl>
+    <a href="/simulator" class="btn btn-primary mt-10 text-base">Open the free simulator</a>
+  </section>
+</Layout>
