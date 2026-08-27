@@ -134,9 +134,8 @@ export async function exportAsPDF(name: string): Promise<void> {
   const data = cloneSvgForExport();
   if (!data) throw new Error('Canvas not found');
 
-  // We rasterize to a PNG then wrap inside a minimal PDF.
-  // (Using a hand-crafted single-page PDF to avoid needing jsPDF.)
-  const blob = await rasterize(data.svg, data.width, data.height, 'image/png', 2);
+  // Rasterize as JPEG — PDF natively supports JPEG via /DCTDecode.
+  const blob = await rasterize(data.svg, data.width, data.height, 'image/jpeg', 2);
   const arrayBuf = await blob.arrayBuffer();
   const bytes = new Uint8Array(arrayBuf);
 
@@ -223,7 +222,7 @@ function buildMinimalPDF(
 
   // Obj 5 - Image XObject
   offsets.push(pos);
-  push(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /Length ${imgBytes.length} >>\nstream\n`);
+  push(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes.length} >>\nstream\n`);
   pushBytes(imgBytes);
   push('\nendstream\nendobj\n');
 

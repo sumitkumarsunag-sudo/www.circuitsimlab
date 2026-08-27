@@ -100,6 +100,13 @@ body {
   border-radius: 2px;
 }
 
+summary::-webkit-details-marker {
+  display: none;
+}
+summary {
+  list-style: none;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -114,6 +121,8 @@ body {
   transition: background-color 0.12s, border-color 0.12s, color 0.12s;
   text-decoration: none;
   line-height: 1;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn-primary {
   background: var(--color-accent);
@@ -135,7 +144,12 @@ body {
   width: 100%;
   max-width: 72rem;
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) {
+  .container-page {
+    padding-inline: 1.5rem;
+  }
 }
 
 /* Content prose defaults for learn/docs pages. */

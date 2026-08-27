@@ -8,7 +8,9 @@ import { Scope } from './Scope.tsx';
 import { useHistory } from './useHistory.ts';
 import { emptySelection, type EditorSelection, type Tool } from './types.ts';
 import type { Viewport } from './geometry.ts';
-import { componentBox, nextRotation, uid } from './geometry.ts';
+import { componentBox, nextRotation, uid, screenToWorld } from './geometry.ts';
+import { getComponentDef, GRID } from '../../lib/components/registry.ts';
+import { snapPoint } from './wiring.ts';
 import { runSimulation, hasDynamics, type RunResult, type SimMode } from './sim.ts';
 import { emptyCircuit, type Circuit, type PlacedComponent } from '../../lib/circuit/types.ts';
 import { encodeShare, decodeShare, serializeCircuit } from '../../lib/circuit/serialize.ts';
@@ -340,6 +342,33 @@ export default function SchematicEditor(props: SchematicEditorProps) {
   const nodeMap = run?.compiled?.nodeMap ?? null;
   const hasProbes = circuit.components.some((c) => c.kind === 'voltage_probe' || c.kind === 'current_probe');
 
+  const handleDropAtScreen = useCallback((kind: string, screenX: number, screenY: number) => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const canvasSvg = el.querySelector('svg[aria-label="Schematic canvas"]') as SVGSVGElement | null;
+    const r = canvasSvg ? canvasSvg.getBoundingClientRect() : el.getBoundingClientRect();
+    const world = screenToWorld(screenX - r.left, screenY - r.top, viewport);
+    const def = getComponentDef(kind);
+    if (!def) return;
+    const snapped = snapPoint(world, [], GRID).pt;
+    const comp: PlacedComponent = {
+      id: uid(def.ref.toLowerCase() + '_'),
+      kind,
+      x: snapped.x,
+      y: snapped.y,
+      rotation: 0,
+      flip: false,
+      props: { ...def.defaults },
+    };
+    commitDirty((c) => ({ ...c, components: [...c.components, comp] }));
+    setSelection({ components: [comp.id], wires: [] });
+    if (isCompact) setPaletteCollapsed(true);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(30); } catch {}
+    }
+    showToast(`Placed ${def.name}`);
+  }, [viewport, commitDirty, isCompact, showToast]);
+
   return (
     <div ref={wrapRef} className="flex h-dvh w-screen flex-col overflow-hidden bg-paper">
       <Toolbar
@@ -381,6 +410,7 @@ export default function SchematicEditor(props: SchematicEditorProps) {
           }}
           collapsed={paletteCollapsed}
           onToggle={() => setPaletteCollapsed((c) => !c)}
+          onDropAtScreen={handleDropAtScreen}
         />
         <div className="relative min-w-0 flex-1">
           <Canvas
@@ -404,13 +434,22 @@ export default function SchematicEditor(props: SchematicEditorProps) {
           />
           {error && (
             <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center px-4">
-              <div className="pointer-events-auto max-w-lg rounded border border-err/30 bg-paper px-3 py-2 text-sm text-err shadow-sm">
-                {error}
+              <div className="pointer-events-auto max-w-lg rounded border border-err/30 bg-paper px-3 py-2 text-sm text-err shadow-sm flex items-start gap-2">
+                <span className="flex-1">{error}</span>
+                <button
+                  onClick={() => setError(null)}
+                  aria-label="Dismiss error"
+                  className="shrink-0 rounded p-0.5 text-err/60 hover:text-err hover:bg-err/10 transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
           )}
           <div className="absolute left-2 top-2 md:top-auto md:bottom-2 flex items-center gap-2">
-            <Diagnostics run={run} error={error} />
+            <Diagnostics run={run} error={error} onDismissError={() => setError(null)} />
           </div>
           {running && hasProbes && (
             <button

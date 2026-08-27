@@ -30,7 +30,7 @@ function IssueRow({ issue }: { issue: Issue }) {
   );
 }
 
-export function Diagnostics({ run, error }: { run: RunResult | null; error: string | null }) {
+export function Diagnostics({ run, error, onDismissError }: { run: RunResult | null; error: string | null; onDismissError?: () => void }) {
   const issues = run?.issues ?? [];
   const errors = issues.filter((i) => i.severity === 'error');
   const warnings = issues.filter((i) => i.severity === 'warning');
@@ -61,7 +61,20 @@ export function Diagnostics({ run, error }: { run: RunResult | null; error: stri
         )}
       </div>
       {error && !errors.length && (
-        <p className="px-3 pb-2 text-sm text-err">{error}</p>
+        <div className="flex items-start gap-2 px-3 pb-2">
+          <p className="flex-1 text-sm text-err">{error}</p>
+          {onDismissError && (
+            <button
+              onClick={onDismissError}
+              aria-label="Dismiss error"
+              className="shrink-0 mt-0.5 rounded p-0.5 text-err/60 hover:text-err hover:bg-err/10 transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       )}
       {(errors.length > 0 || warnings.length > 0) && (
         <ul className="max-h-40 overflow-y-auto border-t border-line">

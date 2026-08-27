@@ -199,25 +199,25 @@ export function Canvas(props: CanvasProps) {
     }
 
     // Select tool. Widen hit areas for finger taps.
-    const hitC = hitComponent(w, touch ? 14 : 8);
+    const hitC = hitComponent(w, touch ? Math.max(16, 22 / viewport.scale) : 8);
     if (hitC) {
       let comps = selection.components;
       if (e.shiftKey) comps = selectedSet.has(hitC) ? comps.filter((id) => id !== hitC) : [...comps, hitC];
       else if (!selectedSet.has(hitC)) comps = [hitC];
       onSelection({ components: comps, wires: [] });
       drag.current = { mode: 'move', start: w, last: w, moved: false };
-      (e.target as Element).setPointerCapture?.(e.pointerId);
+      svgRef.current?.setPointerCapture?.(e.pointerId);
       return;
     }
-    const hitW = hitWire(w, touch ? 8 : 0);
+    const hitW = hitWire(w, touch ? Math.max(10, 14 / viewport.scale) : 0);
     if (hitW) {
       onSelection({ components: [], wires: e.shiftKey ? [...selection.wires, hitW] : [hitW] });
       return;
     }
-    // Empty space → marquee.
+    // Empty space → marquee / pan.
     if (!e.shiftKey) onSelection({ components: [], wires: [] });
     drag.current = { mode: 'marquee', start: w, last: w, moved: false };
-    (e.target as Element).setPointerCapture?.(e.pointerId);
+    svgRef.current?.setPointerCapture?.(e.pointerId);
   }, [toWorld, conns, tool, onCanvasClick, hitComponent, hitWire, selection, selectedSet, onSelection, viewport, localPt]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {

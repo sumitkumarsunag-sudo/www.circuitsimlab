@@ -17,20 +17,51 @@ const partCount = allComponents().length;
 
 const features = [
   {
-    t: 'Real analysis, not a demo',
-    d: 'A modified-nodal-analysis solver runs DC operating point, transient and AC sweeps — the same math SPICE uses. Every number on screen is solved, never faked.',
+    icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+    t: 'Real analysis, not a cartoon',
+    d: 'Modified Nodal Analysis (MNA) runs DC, transient and AC sweeps — the same rigorous math SPICE uses. Every readout is solved.',
   },
   {
-    t: 'See the electricity',
-    d: 'Current animates along the wires it actually flows through. Nodes are coloured by solved voltage, LEDs light by real forward current.',
+    icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
+    t: 'See electricity moving',
+    d: 'Current animates along actual conductive paths. Nodes color by solved voltage and LEDs glow with real forward current.',
   },
   {
-    t: 'Built for the browser',
-    d: 'Static pages, one interactive island, solver in a Web Worker. It loads fast, works offline after first visit, and never uploads your circuit.',
+    icon: 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
+    t: '100% in your browser',
+    d: 'Runs locally in a Web Worker. Fast, works offline, zero installs, and your circuits stay completely private on your device.',
   },
   {
-    t: 'Measure like the bench',
-    d: 'Drop a multimeter or a two-channel oscilloscope onto the canvas and read volts, amps and waveforms with real time/div and volt/div.',
+    icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+    t: 'Multimeter & Oscilloscope',
+    d: 'Drop voltage/current probes or a 2-channel virtual oscilloscope onto any node to inspect real-time waveforms with Volt/Div and Time/Div.',
+  },
+];
+
+const quickExamples = [
+  {
+    slug: '555-astable',
+    title: '555 Timer LED Blinker',
+    mode: 'transient',
+    summary: 'Classic square-wave pulse generator with frequency control and output scope.',
+  },
+  {
+    slug: 'rc-charging',
+    title: 'RC Low-Pass Filter',
+    mode: 'transient',
+    summary: 'Capacitor charging curve demonstrating RC time constants and cut-off response.',
+  },
+  {
+    slug: 'voltage-divider',
+    title: 'Voltage Divider Network',
+    mode: 'dc',
+    summary: 'Two-resistor divider illustrating Ohm’s law, node voltages and loaded currents.',
+  },
+  {
+    slug: 'npn-switch',
+    title: 'Transistor Saturation Switch',
+    mode: 'dc',
+    summary: 'BJT NPN transistor driven into saturation to switch high-current loads.',
   },
 ];
 ---
@@ -44,118 +75,211 @@ const features = [
   <!-- Hero -->
   <section class="relative overflow-hidden border-b border-line">
     <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
-    <div class="container-page relative grid gap-10 py-16 md:grid-cols-2 md:py-24 md:gap-8 items-center">
+    <div class="container-page relative grid gap-8 py-10 sm:py-16 md:grid-cols-2 md:py-20 md:gap-12 items-center">
       <div>
-        <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Online circuit simulator</p>
-        <h1 class="mt-3 text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        <div class="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft/50 px-3 py-1 text-xs font-medium text-accent">
+          <span class="h-1.5 w-1.5 rounded-full bg-accent animate-ping"></span>
+          <span>Online Circuit Simulator</span>
+        </div>
+        
+        <h1 class="mt-4 text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-ink">
           Build. Simulate.<br /><span class="text-accent">Understand.</span>
         </h1>
-        <p class="mt-5 max-w-md text-lg text-ink-2">
-          Draw a schematic, press run, and watch real current move through it. A precise electronics
-          lab that lives in a browser tab — free, no sign-up, nothing to install.
+        
+        <p class="mt-4 max-w-lg text-base sm:text-lg text-ink-2">
+          Draw schematics, press run, and watch real electricity move through your circuit. An interactive electronics lab inside your browser — free, fast, and no install required.
         </p>
-        <div class="mt-7 flex flex-wrap items-center gap-3">
-          <a href="/simulator" class="btn btn-primary text-base">Open the simulator</a>
-          <a href="/examples" class="btn btn-ghost text-base">Browse examples</a>
+
+        <div class="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+          <a href="/simulator" class="btn btn-primary text-base justify-center py-2.5 px-5 shadow-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <span>Open the Simulator</span>
+          </a>
+          <a href="/examples" class="btn btn-ghost text-base justify-center py-2.5 px-4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z" />
+            </svg>
+            <span>Browse Examples</span>
+          </a>
         </div>
-        <dl class="mt-9 flex gap-8">
-          <div>
-            <dt class="text-xs text-muted">Components</dt>
-            <dd class="tnum text-2xl font-semibold">{partCount}</dd>
+
+        <!-- Mobile & Desktop Instrument HUD stats -->
+        <div class="mt-8 grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-surface/70 p-3 shadow-xs sm:flex sm:divide-x-0 sm:border-0 sm:bg-transparent sm:p-0 sm:gap-8">
+          <div class="px-2 text-center sm:px-0 sm:text-left">
+            <dt class="text-xs text-muted font-medium">Components</dt>
+            <dd class="tnum text-xl sm:text-2xl font-semibold text-ink">{partCount}+</dd>
           </div>
-          <div>
-            <dt class="text-xs text-muted">Analyses</dt>
-            <dd class="tnum text-2xl font-semibold">DC · Tran · AC</dd>
+          <div class="px-2 text-center sm:px-0 sm:text-left">
+            <dt class="text-xs text-muted font-medium">Analyses</dt>
+            <dd class="tnum text-xl sm:text-2xl font-semibold text-ink">DC · Tran · AC</dd>
           </div>
-          <div>
-            <dt class="text-xs text-muted">Price</dt>
-            <dd class="tnum text-2xl font-semibold">$0</dd>
+          <div class="px-2 text-center sm:px-0 sm:text-left">
+            <dt class="text-xs text-muted font-medium">Cost</dt>
+            <dd class="tnum text-xl sm:text-2xl font-semibold text-ok">$0 Free</dd>
           </div>
-        </dl>
+        </div>
       </div>
 
-      <!-- Live-looking schematic: a battery → resistor → LED loop with animated flow. -->
-      <div class="relative">
-        <div class="rounded-lg border border-line bg-paper shadow-sm">
-          <div class="flex items-center gap-1.5 border-b border-line px-3 py-2">
-            <span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span>
-            <span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span>
-            <span class="h-2.5 w-2.5 rounded-full bg-line-strong"></span>
-            <span class="tnum ml-2 text-xs text-muted">led-blinker.circuit</span>
-            <span class="tnum ml-auto text-xs text-ok">● running</span>
+      <!-- Live Interactive Schematic Showcase Card -->
+      <div class="relative w-full max-w-md mx-auto md:max-w-none">
+        <a href="/simulator" class="group block rounded-xl border border-line bg-paper shadow-md transition-all hover:border-accent hover:shadow-lg overflow-hidden" title="Open this circuit in the interactive simulator">
+          <div class="flex items-center gap-1.5 border-b border-line bg-surface/80 px-3 py-2">
+            <span class="h-2.5 w-2.5 rounded-full bg-pos/80"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-signal/80"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-ok/80"></span>
+            <span class="tnum ml-2 text-xs font-medium text-ink-2">led-blinker.circuit</span>
+            <span class="tnum ml-auto inline-flex items-center gap-1 text-xs font-semibold text-ok">
+              <span class="h-2 w-2 rounded-full bg-ok animate-pulse"></span>
+              running
+            </span>
           </div>
-          <svg viewBox="0 0 360 240" class="w-full" role="img" aria-label="Animated LED circuit">
-            <!-- wire loop -->
-            <g stroke="var(--color-ink)" stroke-width="2" fill="none" stroke-linecap="round">
-              <path d="M80 60 H280" />
-              <path d="M280 60 V180" />
-              <path d="M280 180 H80" />
-              <path d="M80 180 V60" />
-            </g>
-            <!-- animated current -->
-            <g stroke="var(--color-signal)" stroke-width="2.5" fill="none" stroke-linecap="round" class="flow">
-              <path d="M80 60 H280" /><path d="M280 60 V180" /><path d="M280 180 H80" /><path d="M80 180 V60" />
-            </g>
-            <!-- battery -->
-            <g stroke="var(--color-ink)" stroke-width="2" transform="translate(80 120)">
-              <line x1="0" y1="-14" x2="0" y2="14" stroke-width="3" />
-              <line x1="-8" y1="-8" x2="-8" y2="8" />
-              <rect x="-14" y="-22" width="28" height="44" fill="var(--color-paper)" stroke="none" opacity="0" />
-            </g>
-            <text x="58" y="124" class="tnum" font-size="11" fill="var(--color-muted)">9V</text>
-            <!-- resistor (top) -->
-            <g transform="translate(180 60)" stroke="var(--color-ink)" stroke-width="2" fill="none">
-              <path d="M-30 0 h8 l4 -8 l8 16 l8 -16 l8 16 l4 -8 h8" />
-            </g>
-            <text x="180" y="44" text-anchor="middle" class="tnum" font-size="11" fill="var(--color-muted)">330Ω</text>
-            <!-- LED (right) -->
-            <g transform="translate(280 120)" stroke="var(--color-pos)" stroke-width="2" fill="none">
-              <polygon points="-10,-10 -10,10 8,0" fill="var(--color-signal)" fill-opacity="0.5" />
-              <line x1="8" y1="-10" x2="8" y2="10" />
-              <line x1="14" y1="-14" x2="20" y2="-20" /><line x1="10" y1="-16" x2="16" y2="-22" />
-            </g>
-            <!-- node voltage tags -->
-            <circle cx="80" cy="60" r="3" fill="var(--color-pos)" />
-            <text x="86" y="54" class="tnum" font-size="10" fill="var(--color-pos)">9.00 V</text>
-            <circle cx="280" cy="60" r="3" fill="var(--color-neg)" />
-            <text x="230" y="54" class="tnum" font-size="10" fill="var(--color-neg)">2.10 V</text>
-            <text x="230" y="205" class="tnum" font-size="10" fill="var(--color-signal)">20.9 mA</text>
-          </svg>
-        </div>
-        <p class="mt-2 text-center text-xs text-muted">A solved loop — voltages and current are what the analysis returns.</p>
+
+          <div class="p-2 sm:p-4 bg-paper">
+            <svg viewBox="0 0 360 240" class="w-full h-auto" role="img" aria-label="Animated LED circuit">
+              <!-- wire loop -->
+              <g stroke="var(--color-ink)" stroke-width="2" fill="none" stroke-linecap="round">
+                <path d="M80 60 H280" />
+                <path d="M280 60 V180" />
+                <path d="M280 180 H80" />
+                <path d="M80 180 V60" />
+              </g>
+              <!-- animated current -->
+              <g stroke="var(--color-signal)" stroke-width="2.5" fill="none" stroke-linecap="round" class="flow">
+                <path d="M80 60 H280" /><path d="M280 60 V180" /><path d="M280 180 H80" /><path d="M80 180 V60" />
+              </g>
+              <!-- battery -->
+              <g stroke="var(--color-ink)" stroke-width="2" transform="translate(80 120)">
+                <line x1="0" y1="-14" x2="0" y2="14" stroke-width="3" />
+                <line x1="-8" y1="-8" x2="-8" y2="8" />
+                <rect x="-14" y="-22" width="28" height="44" fill="var(--color-paper)" stroke="none" opacity="0" />
+              </g>
+              <text x="54" y="124" class="tnum font-medium" font-size="11" fill="var(--color-muted)">9V</text>
+              <!-- resistor (top) -->
+              <g transform="translate(180 60)" stroke="var(--color-ink)" stroke-width="2" fill="none">
+                <path d="M-30 0 h8 l4 -8 l8 16 l8 -16 l8 16 l4 -8 h8" />
+              </g>
+              <text x="180" y="44" text-anchor="middle" class="tnum font-medium" font-size="11" fill="var(--color-muted)">330Ω</text>
+              <!-- LED (right) -->
+              <g transform="translate(280 120)" stroke="var(--color-pos)" stroke-width="2" fill="none">
+                <polygon points="-10,-10 -10,10 8,0" fill="var(--color-signal)" fill-opacity="0.6" />
+                <line x1="8" y1="-10" x2="8" y2="10" />
+                <line x1="14" y1="-14" x2="20" y2="-20" /><line x1="10" y1="-16" x2="16" y2="-22" />
+              </g>
+              <!-- node voltage tags -->
+              <circle cx="80" cy="60" r="3" fill="var(--color-pos)" />
+              <text x="88" y="54" class="tnum font-medium" font-size="10" fill="var(--color-pos)">9.00 V</text>
+              <circle cx="280" cy="60" r="3" fill="var(--color-neg)" />
+              <text x="228" y="54" class="tnum font-medium" font-size="10" fill="var(--color-neg)">2.10 V</text>
+              <text x="228" y="205" class="tnum font-medium" font-size="10" fill="var(--color-signal)">20.9 mA</text>
+            </svg>
+          </div>
+
+          <div class="flex items-center justify-between border-t border-line bg-surface/50 px-3 py-2 text-xs text-muted group-hover:bg-accent-soft/30 group-hover:text-accent transition-colors">
+            <span>Solved circuit · Live physics</span>
+            <span class="font-medium inline-flex items-center gap-1">
+              Tap to open <span aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- Features -->
-  <section class="container-page py-16 md:py-20">
-    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Not a picture of a simulator — a simulator.</h2>
-    <p class="mt-3 max-w-2xl text-ink-2">Plenty of tools animate a cartoon. CircuitSimulate solves the circuit and draws the answer.</p>
-    <div class="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2">
-      {features.map((f) => (
-        <div class="border-t border-line pt-4">
-          <h3 class="font-semibold">{f.t}</h3>
-          <p class="mt-1.5 text-sm text-ink-2">{f.d}</p>
-        </div>
+  <!-- Quick-Start Examples Showcase (Mobile-optimized cards) -->
+  <section class="container-page py-12 sm:py-16">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+      <div>
+        <p class="tnum text-xs uppercase tracking-[0.2em] text-accent">Instant interactive circuits</p>
+        <h2 class="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Try pre-built circuits</h2>
+      </div>
+      <a href="/examples" class="text-sm font-medium text-accent hover:underline inline-flex items-center gap-1">
+        All {quickExamples.length * 4}+ examples →
+      </a>
+    </div>
+
+    <div class="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      {quickExamples.map((ex) => (
+        <a
+          href={`/examples/${ex.slug}`}
+          class="group flex flex-col justify-between rounded-xl border border-line bg-paper p-4 shadow-2xs transition-all hover:border-accent hover:shadow-sm"
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="tnum rounded bg-surface-2 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted">
+                {ex.mode}
+              </span>
+              <span class="text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                Open →
+              </span>
+            </div>
+            <h3 class="mt-2.5 font-semibold text-ink group-hover:text-accent transition-colors">{ex.title}</h3>
+            <p class="mt-1.5 text-xs sm:text-sm text-ink-2 line-clamp-2">{ex.summary}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-xs text-muted">
+            <span>Solved MNA</span>
+            <span class="text-accent font-medium">Launch demo</span>
+          </div>
+        </a>
       ))}
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="border-t border-line bg-surface/50">
+    <div class="container-page py-12 sm:py-16 md:py-20">
+      <div class="max-w-2xl">
+        <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Built like a real laboratory instrument</h2>
+        <p class="mt-2 text-sm sm:text-base text-ink-2">CircuitSimulate is powered by authentic Modified Nodal Analysis — not cartoon animations.</p>
+      </div>
+
+      <div class="mt-8 sm:mt-12 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
+        {features.map((f) => (
+          <div class="rounded-xl border border-line bg-paper p-5 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-soft text-accent">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d={f.icon} />
+                </svg>
+              </div>
+              <h3 class="mt-3.5 font-semibold text-ink text-base sm:text-lg">{f.t}</h3>
+              <p class="mt-1.5 text-sm text-ink-2 leading-relaxed">{f.d}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
   <!-- Workflow -->
   <section class="border-y border-line bg-surface">
-    <div class="container-page py-16 md:py-20">
-      <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">Four steps to a working circuit</h2>
-      <ol class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="container-page py-12 sm:py-16 md:py-20">
+      <div class="text-center max-w-xl mx-auto">
+        <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Four steps to a working circuit</h2>
+        <p class="mt-2 text-sm sm:text-base text-ink-2">Simple enough for beginners, precise enough for engineers.</p>
+      </div>
+
+      <ol class="mt-8 sm:mt-12 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ['Place', 'Drag parts from the palette onto a snapping grid.'],
-          ['Wire', 'Click terminal to terminal — wires route orthogonally and snap to pins.'],
-          ['Run', 'Pick DC, transient or AC. The solver runs in a background worker.'],
-          ['Read', 'Watch current flow, read node voltages, or scope a waveform.'],
-        ].map(([t, d], i) => (
-          <li class="rounded-md border border-line bg-paper p-5">
-            <span class="tnum text-sm text-accent">{String(i + 1).padStart(2, '0')}</span>
-            <h3 class="mt-2 font-semibold">{t}</h3>
-            <p class="mt-1 text-sm text-ink-2">{d}</p>
+          ['Place', 'Drag parts from the palette onto a snapping grid (touch or mouse).', 'M12 4v16m8-8H4'],
+          ['Wire', 'Tap terminal to terminal — wires route orthogonally and snap cleanly.', 'M4 18h6v-8h10'],
+          ['Run', 'Choose DC, transient or AC sweeps. Solver runs locally in real-time.', 'M8 5v14l11-7z'],
+          ['Read', 'Watch current flow, inspect node voltages, or scope detailed waveforms.', 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6'],
+        ].map(([t, d, icon], i) => (
+          <li class="rounded-xl border border-line bg-paper p-5 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="tnum inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted">
+                  <path d={icon} />
+                </svg>
+              </div>
+              <h3 class="mt-3.5 font-semibold text-ink text-base">{t}</h3>
+              <p class="mt-1 text-sm text-ink-2">{d}</p>
+            </div>
           </li>
         ))}
       </ol>
@@ -163,9 +287,20 @@ const features = [
   </section>
 
   <!-- CTA -->
-  <section class="container-page py-16 text-center md:py-24">
-    <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">Open a blank canvas.</h2>
-    <p class="mx-auto mt-3 max-w-md text-ink-2">No account, no download. Your circuit stays in your browser until you choose to share it.</p>
-    <a href="/simulator" class="btn btn-primary mt-6 text-base">Launch CircuitSimulate</a>
+  <section class="container-page py-12 sm:py-16 text-center md:py-24">
+    <div class="max-w-xl mx-auto">
+      <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight md:text-4xl text-ink">Ready to simulate?</h2>
+      <p class="mt-3 text-sm sm:text-base text-ink-2">
+        Open a blank canvas with zero setup. No account, no download, 100% free.
+      </p>
+      <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="/simulator" class="btn btn-primary text-base w-full sm:w-auto justify-center py-2.5 px-6 shadow-sm">
+          Launch CircuitSimulate
+        </a>
+        <a href="/components" class="btn btn-ghost text-base w-full sm:w-auto justify-center py-2.5 px-5">
+          View Component Library
+        </a>
+      </div>
+    </div>
   </section>
 </Layout>
