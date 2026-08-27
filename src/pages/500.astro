@@ -1,0 +1,105 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const supportLinks = [
+  { href: '/', label: 'CircuitSimulate Home', desc: 'Return to the main homepage' },
+  { href: '/simulator', label: 'Circuit Simulator', desc: 'Launch a fresh simulation session' },
+  { href: '/contact', label: 'Report an Issue', desc: 'Let our team know about the error' },
+  { href: '/documentation', label: 'Documentation', desc: 'Browse user guides and troubleshooting' },
+];
+---
+
+<Layout
+  title="500 — Server Error (Tripped Breaker)"
+  description="An internal error occurred. Please refresh the page or return to the CircuitSimulate home page."
+  path="/500"
+  noindex={true}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 sm:py-24 text-center">
+      <!-- Circuit status pill -->
+      <div class="inline-flex items-center gap-2 rounded-full border border-err/30 bg-err/10 px-3.5 py-1 text-xs font-medium text-err">
+        <span class="h-2 w-2 rounded-full bg-err animate-pulse"></span>
+        <span class="tnum font-semibold uppercase tracking-wider">Error 500 · Thermal Breaker Tripped</span>
+      </div>
+
+      <!-- Schematic graphic: Blown Fuse / Overload Symbol -->
+      <div class="my-8 flex justify-center">
+        <div class="rounded-xl border border-line bg-paper p-4 shadow-sm max-w-sm w-full">
+          <svg viewBox="0 0 320 100" class="w-full h-auto" role="img" aria-label="Tripped circuit breaker schematic diagram">
+            <!-- Left supply line -->
+            <line x1="30" y1="50" x2="100" y2="50" stroke="var(--color-pos)" stroke-width="3" stroke-linecap="round" />
+            <circle cx="30" cy="50" r="4" fill="var(--color-pos)" />
+            <text x="30" y="32" font-size="11" fill="var(--color-pos)" font-family="var(--font-mono)" text-anchor="middle" font-weight="600">Vin</text>
+
+            <!-- Fuse / Breaker box -->
+            <rect x="100" y="35" width="120" height="30" rx="4" fill="var(--color-surface)" stroke="var(--color-err)" stroke-width="2" />
+            <!-- Blown filament wavy line with gap -->
+            <path d="M100 50 Q120 40 135 50" stroke="var(--color-err)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+            <path d="M142 42 L150 58 L158 42 L166 58" stroke="var(--color-err)" stroke-width="2" fill="none" stroke-linecap="round" />
+            <path d="M175 50 Q190 60 220 50" stroke="var(--color-err)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+
+            <!-- Right output line -->
+            <line x1="220" y1="50" x2="290" y2="50" stroke="var(--color-muted)" stroke-width="3" stroke-linecap="round" stroke-dasharray="3,3" />
+            <circle cx="290" cy="50" r="4" fill="var(--color-muted)" />
+            <text x="290" y="32" font-size="11" fill="var(--color-muted)" font-family="var(--font-mono)" text-anchor="middle" font-weight="600">0A (Trip)</text>
+
+            <!-- Status label -->
+            <text x="160" y="86" font-size="11" fill="var(--color-err)" font-family="var(--font-mono)" text-anchor="middle" font-weight="600">I_overload &gt; I_max (Fault Cleared)</text>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl text-ink">
+        Internal Server Error
+      </h1>
+      <p class="mx-auto mt-4 max-w-lg text-base sm:text-lg text-ink-2">
+        An unexpected spike tripped our internal safety breaker. The issue has been logged, and we're working to restore normal power flow.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <button onclick="window.location.reload()" class="btn btn-primary text-base px-5 py-2.5 shadow-sm cursor-pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          <span>Try Reloading</span>
+        </button>
+        <a href="/" class="btn btn-ghost text-base px-5 py-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          </svg>
+          <span>Return Home</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recovery Links -->
+  <section class="container-page py-12 sm:py-16">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
+        Need assistance or want to continue?
+      </h2>
+      <p class="mt-2 text-sm text-ink-2">Choose an alternative destination:</p>
+    </div>
+
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 max-w-2xl mx-auto">
+      {supportLinks.map((item) => (
+        <a
+          href={item.href}
+          class="group rounded-xl border border-line bg-paper p-4 shadow-2xs transition-all hover:border-accent hover:shadow-sm flex flex-col justify-between"
+        >
+          <div>
+            <h3 class="font-semibold text-ink group-hover:text-accent transition-colors flex items-center justify-between">
+              <span>{item.label}</span>
+              <span class="text-xs text-accent opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+            </h3>
+            <p class="mt-1.5 text-xs sm:text-sm text-ink-2">{item.desc}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Layout>

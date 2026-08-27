@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { allComponents } from '../lib/components/registry.ts';
+import FaqSection, { faqJsonLd } from '../components/site/FaqSection.astro';
 
-const jsonLd = {
+const softwareJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   name: 'CircuitSimulate',
@@ -12,6 +13,8 @@ const jsonLd = {
   description:
     'Free online circuit simulator with real DC, transient and AC analysis. Build schematics in the browser and see current flow, node voltages and waveforms.',
 };
+
+const jsonLd = [softwareJsonLd, faqJsonLd];
 
 const partCount = allComponents().length;
 
@@ -285,6 +288,9 @@ const quickExamples = [
       </ol>
     </div>
   </section>
+
+  <!-- FAQ Section with SEO JSON-LD -->
+  <FaqSection />
 
   <!-- CTA -->
   <section class="container-page py-12 sm:py-16 text-center md:py-24">

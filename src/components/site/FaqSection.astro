@@ -1,0 +1,102 @@
+---
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export const faqItems: FaqItem[] = [
+  {
+    question: 'How to use a circuit simulator?',
+    answer:
+      'To use an online circuit simulator, start by selecting electronic components (such as resistors, capacitors, power sources, transistors, or logic gates) from the part palette and placing them onto the schematic canvas. Connect terminals by clicking and dragging wires between component pins. Adjust values like resistance, capacitance, or supply voltage by clicking on each component. Next, choose your analysis mode (DC operating point, transient time-domain simulation, or AC frequency sweep) and click Run. You can attach virtual multimeters, voltage probes, or a 2-channel oscilloscope to inspect real-time voltages, branch currents, and waveforms.',
+  },
+  {
+    question: 'What is a circuit simulator?',
+    answer:
+      'A circuit simulator is a computer software tool that mathematically models and predicts the behavior of electronic circuits before physical assembly. Using numerical algorithms such as Modified Nodal Analysis (MNA) and SPICE engines, a circuit simulator calculates node voltages, branch currents, transient charging curves, power dissipation, and frequency responses. This enables engineers, students, educators, and hobbyists to test, debug, and understand electronic designs without the risk of damaged physical components.',
+  },
+  {
+    question: 'What is the best circuit simulator?',
+    answer:
+      'The best circuit simulator depends on your specific workflow: For quick, interactive, and zero-setup simulation directly in your browser, CircuitSimulate is the best choice because it provides authentic SPICE-grade Modified Nodal Analysis, animated current flow, and virtual instruments without requiring downloads or accounts. For full PCB layout workflows and desktop engineering, industry-standard tools like LTspice, Ngspice, and KiCad are widely used.',
+  },
+  {
+    question: 'How to make a circuit simulator?',
+    answer:
+      'Building a circuit simulator involves five core steps: (1) Formulate circuit equations using Modified Nodal Analysis (MNA) to construct linear matrix systems (G · v = i); (2) Implement numerical linear algebra solvers such as LU decomposition or Gaussian elimination; (3) Develop component models for linear elements (resistors, capacitors, inductors) and non-linear elements (diodes and transistors via Newton-Raphson iteration); (4) Apply numerical integration methods like Trapezoidal or Backward Euler integration for time-domain transient analysis; and (5) Build an interactive UI or canvas to render schematics, wire connections, and visualize current animations.',
+  },
+  {
+    question: 'Is there an online circuit simulator?',
+    answer:
+      'Yes, CircuitSimulate is a fast, accurate, and completely web-based online circuit simulator. Powered by high-performance Web Workers, it runs 100% locally in your web browser with no plugins or installations needed. You can design analog and digital circuits, view live current animations, and probe node voltages across desktops, laptops, tablets, and mobile devices.',
+  },
+  {
+    question: 'Circuit simulator online free: Is there a free online circuit simulator?',
+    answer:
+      'Yes, CircuitSimulate is a completely free online circuit simulator. There are no paywalls, subscriptions, or account requirements. All simulation modes (DC operating point, transient simulation, and AC sweep), interactive oscilloscope and multimeter tools, and the comprehensive component library are freely accessible to students, hobbyists, and professionals alike.',
+  },
+];
+
+export const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: `<p>${item.answer}</p>`,
+    },
+  })),
+};
+
+interface Props {
+  title?: string;
+  description?: string;
+  items?: FaqItem[];
+  class?: string;
+}
+
+const {
+  title = 'Frequently Asked Questions',
+  description = 'Everything you need to know about circuit simulation, how it works, and getting started.',
+  items = faqItems,
+  class: className = '',
+} = Astro.props;
+---
+
+<section class:list={['border-t border-line bg-surface/40', className]} id="faq">
+  <div class="container-page py-12 sm:py-16 md:py-20">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft/50 px-3 py-1 text-xs font-medium text-accent">
+        <span>Knowledge Base</span>
+      </div>
+      <h2 class="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl text-ink">
+        {title}
+      </h2>
+      {description && (
+        <p class="mt-2 text-sm sm:text-base text-ink-2">
+          {description}
+        </p>
+      )}
+    </div>
+
+    <div class="mt-8 sm:mt-12 max-w-3xl divide-y divide-line rounded-xl border border-line bg-paper shadow-2xs">
+      {items.map((item, idx) => (
+        <details class="group p-5 sm:p-6 transition-colors open:bg-surface/30 first:rounded-t-xl last:rounded-b-xl" open={idx === 0}>
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink sm:text-lg select-none">
+            <span>{item.question}</span>
+            <span class="ml-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted transition-transform duration-200 group-open:rotate-180 group-open:bg-accent group-open:text-white">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
+          </summary>
+          <div class="mt-3 text-sm sm:text-base text-ink-2 leading-relaxed">
+            <p>{item.answer}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

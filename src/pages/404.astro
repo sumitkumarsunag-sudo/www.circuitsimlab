@@ -1,0 +1,105 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const quickLinks = [
+  { href: '/simulator', label: 'Interactive Simulator', desc: 'Launch blank canvas or start designing' },
+  { href: '/examples', label: 'Circuit Examples', desc: 'Explore 555 timers, filters, amplifiers & logic' },
+  { href: '/components', label: 'Component Library', desc: 'Browse all supported analog & digital parts' },
+  { href: '/tools', label: 'Electronics Calculators', desc: 'Resistor color codes, Ohm’s law & filter tools' },
+  { href: '/documentation', label: 'Documentation', desc: 'Learn keyboard shortcuts and solver guides' },
+  { href: '/about', label: 'About CircuitSimulate', desc: 'How our browser-based MNA engine works' },
+];
+---
+
+<Layout
+  title="404 — Page Not Found (Open Circuit)"
+  description="The requested page could not be found. Return to CircuitSimulate home or launch the online circuit simulator."
+  path="/404"
+  noindex={true}
+>
+  <section class="relative overflow-hidden border-b border-line">
+    <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
+    <div class="container-page relative py-16 sm:py-24 text-center">
+      <!-- Circuit status pill -->
+      <div class="inline-flex items-center gap-2 rounded-full border border-warn/30 bg-warn/10 px-3.5 py-1 text-xs font-medium text-warn">
+        <span class="h-2 w-2 rounded-full bg-warn animate-pulse"></span>
+        <span class="tnum font-semibold uppercase tracking-wider">Error 404 · Open Circuit Detected</span>
+      </div>
+
+      <!-- Schematic graphic: Broken / Disconnected Wire -->
+      <div class="my-8 flex justify-center">
+        <div class="rounded-xl border border-line bg-paper p-4 shadow-sm max-w-sm w-full">
+          <svg viewBox="0 0 320 100" class="w-full h-auto" role="img" aria-label="Open circuit schematic diagram">
+            <!-- Left wire -->
+            <line x1="30" y1="50" x2="110" y2="50" stroke="var(--color-pos)" stroke-width="3" stroke-linecap="round" />
+            <circle cx="30" cy="50" r="4" fill="var(--color-pos)" />
+            <text x="30" y="32" font-size="11" fill="var(--color-pos)" font-family="var(--font-mono)" text-anchor="middle" font-weight="600">+5V</text>
+            
+            <!-- Disconnected terminals -->
+            <circle cx="110" cy="50" r="5" fill="var(--color-paper)" stroke="var(--color-ink)" stroke-width="2.5" />
+            <path d="M125 35 L145 65" stroke="var(--color-warn)" stroke-width="2.5" stroke-dasharray="3,3" stroke-linecap="round" />
+            <circle cx="210" cy="50" r="5" fill="var(--color-paper)" stroke="var(--color-ink)" stroke-width="2.5" />
+
+            <!-- Right wire -->
+            <line x1="210" y1="50" x2="290" y2="50" stroke="var(--color-muted)" stroke-width="3" stroke-linecap="round" stroke-dasharray="4,4" />
+            <circle cx="290" cy="50" r="4" fill="var(--color-muted)" />
+            <text x="290" y="32" font-size="11" fill="var(--color-muted)" font-family="var(--font-mono)" text-anchor="middle" font-weight="600">0V (Floating)</text>
+
+            <!-- Status label -->
+            <text x="160" y="86" font-size="11" fill="var(--color-warn)" font-family="var(--font-mono)" text-anchor="middle" font-weight="600">R = ∞ Ω (Disconnected Node)</text>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl text-ink">
+        Page Not Found
+      </h1>
+      <p class="mx-auto mt-4 max-w-lg text-base sm:text-lg text-ink-2">
+        The wire seems disconnected. The URL you followed may be broken, moved, or never existed in the circuit.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <a href="/" class="btn btn-primary text-base px-5 py-2.5 shadow-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <span>Return Home</span>
+        </a>
+        <a href="/simulator" class="btn btn-ghost text-base px-5 py-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <span>Open Simulator</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Helpful Destination Links -->
+  <section class="container-page py-12 sm:py-16">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
+        Looking for one of these pages?
+      </h2>
+      <p class="mt-2 text-sm text-ink-2">Reconnect to popular sections of CircuitSimulate:</p>
+    </div>
+
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+      {quickLinks.map((item) => (
+        <a
+          href={item.href}
+          class="group rounded-xl border border-line bg-paper p-4 shadow-2xs transition-all hover:border-accent hover:shadow-sm flex flex-col justify-between"
+        >
+          <div>
+            <h3 class="font-semibold text-ink group-hover:text-accent transition-colors flex items-center justify-between">
+              <span>{item.label}</span>
+              <span class="text-xs text-accent opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+            </h3>
+            <p class="mt-1.5 text-xs sm:text-sm text-ink-2">{item.desc}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Layout>
