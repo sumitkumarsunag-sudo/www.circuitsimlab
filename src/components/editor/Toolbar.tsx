@@ -1,6 +1,7 @@
 import React from 'react';
 import type { SimMode } from './sim.ts';
 import type { Tool } from './types.ts';
+import { ExportMenu, type ExportFormat } from './ExportMenu.tsx';
 
 interface IconBtnProps {
   label: string;
@@ -60,7 +61,7 @@ export interface ToolbarProps {
   onToggleGrid: () => void;
   onModeChange: (m: SimMode) => void;
   onShare: () => void;
-  onExport: () => void;
+  onExport: (format: ExportFormat) => void;
 }
 
 export function Toolbar(p: ToolbarProps) {
@@ -138,7 +139,7 @@ export function Toolbar(p: ToolbarProps) {
         </span>
         <IconBtn label="Fit to circuit" shortcut="F" onClick={p.onFit}><I d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></IconBtn>
         <Sep />
-        <IconBtn label="Export" onClick={p.onExport}><I d="M12 3v12M8 11l4 4 4-4M4 21h16" /></IconBtn>
+        <ExportMenu onExport={p.onExport} />
         <IconBtn label="Share link" onClick={p.onShare}><I d="M18 8a3 3 0 1 0-2.8-4M6 15a3 3 0 1 0 .1 0zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4" /></IconBtn>
       </div>
     </div>

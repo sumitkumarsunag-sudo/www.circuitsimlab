@@ -14,6 +14,8 @@ import { emptyCircuit, type Circuit, type PlacedComponent } from '../../lib/circ
 import { encodeShare, decodeShare, serializeCircuit } from '../../lib/circuit/serialize.ts';
 import { saveProject, newProject } from '../../lib/circuit/storage.ts';
 import { disposeSimClient } from '../../lib/engine/simClient.ts';
+import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsDOCX, exportAsJSON } from './exportUtils.ts';
+import type { ExportFormat } from './ExportMenu.tsx';
 
 export interface SchematicEditorProps {
   initialCircuit?: Circuit;
@@ -232,15 +234,37 @@ export default function SchematicEditor(props: SchematicEditorProps) {
     }
   }, [circuit, showToast]);
 
-  const doExport = useCallback(() => {
-    const json = serializeCircuit(circuit);
-    const blob = new Blob([json], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${name.replace(/\s+/g, '-').toLowerCase() || 'circuit'}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    showToast('Exported circuit JSON');
+  const doExport = useCallback(async (format: ExportFormat) => {
+    const safeName = name.replace(/\s+/g, '-').toLowerCase() || 'circuit';
+    try {
+      switch (format) {
+        case 'png':
+          await exportAsPNG(safeName);
+          showToast('Exported as PNG');
+          break;
+        case 'svg':
+          exportAsSVG(safeName);
+          showToast('Exported as SVG');
+          break;
+        case 'pdf':
+          await exportAsPDF(safeName);
+          showToast('Exported as PDF');
+          break;
+        case 'docx':
+          await exportAsDOCX(safeName);
+          showToast('Exported as Word document');
+          break;
+        case 'json':
+        default: {
+          const json = serializeCircuit(circuit);
+          exportAsJSON(safeName, json);
+          showToast('Exported circuit JSON');
+          break;
+        }
+      }
+    } catch (err) {
+      showToast('Export failed: ' + (err instanceof Error ? err.message : String(err)));
+    }
   }, [circuit, name, showToast]);
 
   // ---- View controls -------------------------------------------------------
