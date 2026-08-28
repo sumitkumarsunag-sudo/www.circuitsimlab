@@ -62,6 +62,7 @@ body {
   margin: 0;
   font-size: var(--text-base);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* Tabular monospace numerals for anything that reads like an instrument. */

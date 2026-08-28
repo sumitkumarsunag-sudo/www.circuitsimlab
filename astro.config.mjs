@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://circuitsimulate.com',
+  site: 'https://www.circuitsimlab.com',
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

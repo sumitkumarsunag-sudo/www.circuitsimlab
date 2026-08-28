@@ -78,29 +78,29 @@ const quickExamples = [
   <!-- Hero -->
   <section class="relative overflow-hidden border-b border-line">
     <div class="absolute inset-0 grid-paper grid-paper-fade opacity-60" aria-hidden="true"></div>
-    <div class="container-page relative grid gap-8 py-10 sm:py-16 md:grid-cols-2 md:py-20 md:gap-12 items-center">
-      <div>
+    <div class="container-page relative grid gap-8 py-8 sm:py-16 md:grid-cols-2 md:py-20 md:gap-12 items-center">
+      <div class="min-w-0">
         <div class="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft/50 px-3 py-1 text-xs font-medium text-accent">
           <span class="h-1.5 w-1.5 rounded-full bg-accent animate-ping"></span>
           <span>Online Circuit Simulator</span>
         </div>
         
-        <h1 class="mt-4 text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-ink">
+        <h1 class="mt-4 text-2xl font-semibold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-ink">
           Build. Simulate.<br /><span class="text-accent">Understand.</span>
         </h1>
         
-        <p class="mt-4 max-w-lg text-base sm:text-lg text-ink-2">
+        <p class="mt-4 max-w-lg text-sm sm:text-lg text-ink-2">
           Draw schematics, press run, and watch real electricity move through your circuit. An interactive electronics lab inside your browser — free, fast, and no install required.
         </p>
 
         <div class="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
-          <a href="/simulator" class="btn btn-primary text-base justify-center py-2.5 px-5 shadow-sm">
+          <a href="/simulator" class="btn btn-primary text-sm sm:text-base justify-center py-2.5 px-5 shadow-sm">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
             </svg>
             <span>Open the Simulator</span>
           </a>
-          <a href="/examples" class="btn btn-ghost text-base justify-center py-2.5 px-4">
+          <a href="/examples" class="btn btn-ghost text-sm sm:text-base justify-center py-2.5 px-4">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z" />
             </svg>
@@ -112,21 +112,21 @@ const quickExamples = [
         <div class="mt-8 grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-surface/70 p-3 shadow-xs sm:flex sm:divide-x-0 sm:border-0 sm:bg-transparent sm:p-0 sm:gap-8">
           <div class="px-2 text-center sm:px-0 sm:text-left">
             <dt class="text-xs text-muted font-medium">Components</dt>
-            <dd class="tnum text-xl sm:text-2xl font-semibold text-ink">{partCount}+</dd>
+            <dd class="tnum text-lg sm:text-2xl font-semibold text-ink">{partCount}+</dd>
           </div>
           <div class="px-2 text-center sm:px-0 sm:text-left">
             <dt class="text-xs text-muted font-medium">Analyses</dt>
-            <dd class="tnum text-xl sm:text-2xl font-semibold text-ink">DC · Tran · AC</dd>
+            <dd class="tnum text-lg sm:text-2xl font-semibold text-ink">DC · Tran · AC</dd>
           </div>
           <div class="px-2 text-center sm:px-0 sm:text-left">
             <dt class="text-xs text-muted font-medium">Cost</dt>
-            <dd class="tnum text-xl sm:text-2xl font-semibold text-ok">$0 Free</dd>
+            <dd class="tnum text-lg sm:text-2xl font-semibold text-ok">$0 Free</dd>
           </div>
         </div>
       </div>
 
       <!-- Live Interactive Schematic Showcase Card -->
-      <div class="relative w-full max-w-md mx-auto md:max-w-none">
+      <div class="relative w-full max-w-sm mx-auto md:max-w-none overflow-hidden">
         <a href="/simulator" class="group block rounded-xl border border-line bg-paper shadow-md transition-all hover:border-accent hover:shadow-lg overflow-hidden" title="Open this circuit in the interactive simulator">
           <div class="flex items-center gap-1.5 border-b border-line bg-surface/80 px-3 py-2">
             <span class="h-2.5 w-2.5 rounded-full bg-pos/80"></span>
