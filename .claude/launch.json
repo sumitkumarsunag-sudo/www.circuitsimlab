@@ -10,6 +10,12 @@
     {
       "name": "attach",
       "url": "http://localhost:4321"
+    },
+    {
+      "name": "onlineleveler",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:\\Users\\sumit\\OneDrive\\Documents\\httponlineleveler.com\\retrograde-raspberry", "run", "dev", "--", "--port", "4322", "--host"],
+      "port": 4322
     }
   ]
 }
