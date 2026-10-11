@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://circuitsimulate.com/sitemap-index.xml
+User-agent: Mediapartners-Google
+Allow: /
+Allow: /ads.txt
+
+Sitemap: https://circuitsimlab.com/sitemap-index.xml
+
