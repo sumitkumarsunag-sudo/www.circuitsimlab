@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Seo from '../components/site/Seo.astro';
 import Header from '../components/site/Header.astro';
 import Footer from '../components/site/Footer.astro';
+import CookieConsent from '../components/site/CookieConsent.astro';
 
 interface Props {
   title: string;
@@ -20,10 +21,22 @@ const { bare = false, ...seo } = Astro.props;
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RHDVK7JCBX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RHDVK7JCBX');
+    </script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3958657111201741"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-3958657111201741" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="generator" content={Astro.generator} />
     <Seo {...seo} />
@@ -41,5 +54,6 @@ const { bare = false, ...seo } = Astro.props;
         <Footer />
       </>
     )}
+    <CookieConsent />
   </body>
 </html>

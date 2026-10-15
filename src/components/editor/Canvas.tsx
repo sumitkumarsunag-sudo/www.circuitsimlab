@@ -12,6 +12,17 @@ import type { Overlay } from './sim.ts';
 import type { EditorSelection, Tool } from './types.ts';
 import { formatValue } from '../../lib/units.ts';
 
+/** Vertical offset (in screen px) to compensate for finger-tip occlusion. */
+const TOUCH_OFFSET_Y = -28;
+/**
+ * Snap radius for finger input (screen px). It has to clear TOUCH_OFFSET_Y,
+ * otherwise a tap aimed straight at a pin lands outside the snap zone after the
+ * occlusion shift and the wire silently misses the connection.
+ */
+const TOUCH_SNAP_PX = 44;
+/** Tap radius for picking parts / wires with a finger (screen px). */
+const TOUCH_TAP_PX = 42;
+
 export interface CanvasProps {
   circuit: Circuit;
   selection: EditorSelection;
@@ -42,16 +53,27 @@ export function Canvas(props: CanvasProps) {
   const [draft, setDraft] = useState<Pt[] | null>(null);
   const [cursor, setCursor] = useState<Pt | null>(null);
   const [dropHint, setDropHint] = useState(false);
-  const drag = useRef<{ mode: 'move' | 'pan' | 'marquee'; start: Pt; last: Pt; moved: boolean } | null>(null);
+  const drag = useRef<{ mode: 'move' | 'pan' | 'marquee'; pointerId: number; start: Pt; last: Pt; moved: boolean } | null>(null);
   // Multi-touch: track active pointers so two fingers can pinch-zoom / pan.
   const pointers = useRef(new Map<number, Pt>());
   const pinch = useRef<{ startDist: number; startCenter: Pt; startVp: Viewport } | null>(null);
   const gestureLock = useRef(false);
+  // For touch wire drawing: defer wire-point commit to pointerUp so user can
+  // drag to refine before lifting.
+  const touchWirePending = useRef<{ pointerId: number; moved: boolean } | null>(null);
 
   const localPt = useCallback((clientX: number, clientY: number): Pt => {
     const r = svgRef.current!.getBoundingClientRect();
     return { x: clientX - r.left, y: clientY - r.top };
   }, []);
+
+  /** Compute scale-aware snap threshold (in world units). */
+  const snapThreshold = useCallback((isTouch: boolean): number => {
+    // Fixed screen-pixel radius for touch so the tappable zone never shrinks
+    // with zoom (grid snapping itself is unconditional and ignores this).
+    if (isTouch) return TOUCH_SNAP_PX / viewport.scale;
+    return GRID * 0.6;
+  }, [viewport.scale]);
 
   const conns = useMemo(() => collectConnectionPoints(circuit), [circuit]);
   const compFlows = useMemo(() => (running && overlay ? componentFlow(overlay.current) : new Map()), [running, overlay]);
@@ -65,9 +87,12 @@ export function Canvas(props: CanvasProps) {
     return { min, max };
   }, [nodeVoltageAt]);
 
-  const toWorld = useCallback((clientX: number, clientY: number): Pt => {
+  const toWorld = useCallback((clientX: number, clientY: number, isTouch = false): Pt => {
     const r = svgRef.current!.getBoundingClientRect();
-    return screenToWorld(clientX - r.left, clientY - r.top, viewport);
+    const sx = clientX - r.left;
+    // Apply a vertical offset for touch to compensate for fingertip occlusion.
+    const sy = clientY - r.top + (isTouch ? TOUCH_OFFSET_Y : 0);
+    return screenToWorld(sx, sy, viewport);
   }, [viewport]);
 
   const selectedSet = useMemo(() => new Set(selection.components), [selection.components]);
@@ -108,8 +133,8 @@ export function Canvas(props: CanvasProps) {
     return null;
   }, [circuit.components]);
 
-  const hitWire = useCallback((w: Pt, extra = 0): string | null => {
-    const tol = (6 + extra) / viewport.scale;
+  const hitWire = useCallback((w: Pt, tolPx: number): string | null => {
+    const tol = tolPx / viewport.scale;
     for (let i = circuit.wires.length - 1; i >= 0; i--) {
       const wire = circuit.wires[i];
       if (distToSegment(w.x, w.y, wire.x1, wire.y1, wire.x2, wire.y2) <= tol) return wire.id;
@@ -127,6 +152,7 @@ export function Canvas(props: CanvasProps) {
       }));
     }
     setDraft(null);
+    setCursor(null);
   }, [onCommit]);
 
   const onCanvasClick = useCallback((w: Pt, onConn: boolean, snapped: Pt) => {
@@ -143,6 +169,7 @@ export function Canvas(props: CanvasProps) {
         if (last && last.x === snapped.x && last.y === snapped.y) {
           if (draft.length <= 1) {
             setDraft(null);
+            setCursor(null);
             return;
           }
           finishWire(draft);
@@ -163,6 +190,7 @@ export function Canvas(props: CanvasProps) {
     // Second finger lands → switch to a pinch-zoom / two-finger-pan gesture.
     if (pointers.current.size === 2) {
       drag.current = null;
+      touchWirePending.current = null;
       setMarquee(null);
       const [a, b] = [...pointers.current.values()];
       pinch.current = {
@@ -176,6 +204,7 @@ export function Canvas(props: CanvasProps) {
     if (e.button === 2) {
       if (draft) {
         setDraft(null);
+        setCursor(null);
         return;
       }
       if (tool.type !== 'select') {
@@ -184,41 +213,55 @@ export function Canvas(props: CanvasProps) {
       }
     }
     if (e.button === 1 || (e.button === 0 && e.altKey) || (e.button === 2 && tool.type === 'select' && !draft)) {
-      drag.current = { mode: 'pan', start: { x: e.clientX, y: e.clientY }, last: { x: e.clientX, y: e.clientY }, moved: false };
+      drag.current = { mode: 'pan', pointerId: e.pointerId, start: { x: e.clientX, y: e.clientY }, last: { x: e.clientX, y: e.clientY }, moved: false };
       (e.target as Element).setPointerCapture?.(e.pointerId);
       return;
     }
     if (e.button !== 0) return;
     const touch = e.pointerType === 'touch' || e.pointerType === 'pen';
-    const w = toWorld(e.clientX, e.clientY);
-    const { pt: snapped, onConnection } = snapPoint(w, conns, touch ? GRID : GRID * 0.6);
+    const w = toWorld(e.clientX, e.clientY, touch);
+    const thresh = snapThreshold(touch);
+    const { pt: snapped, onConnection } = snapPoint(w, conns, thresh);
 
-    if (tool.type === 'wire' || tool.type === 'place') {
+    if (tool.type === 'wire') {
+      if (touch) {
+        // On touch, defer the wire-point commit to pointerUp so the user can
+        // drag to refine before lifting their finger.
+        touchWirePending.current = { pointerId: e.pointerId, moved: false };
+        setCursor(snapped);
+        svgRef.current?.setPointerCapture?.(e.pointerId);
+      } else {
+        onCanvasClick(w, onConnection, snapped);
+      }
+      return;
+    }
+    if (tool.type === 'place') {
       onCanvasClick(w, onConnection, snapped);
       return;
     }
 
-    // Select tool. Widen hit areas for finger taps.
-    const hitC = hitComponent(w, touch ? Math.max(16, 22 / viewport.scale) : 8);
+    // Select tool. Widen hit areas for finger taps (they must also absorb the
+    // fingertip-occlusion offset, or a tap lands on nothing).
+    const hitC = hitComponent(w, touch ? TOUCH_TAP_PX / viewport.scale : 8);
     if (hitC) {
       let comps = selection.components;
       if (e.shiftKey) comps = selectedSet.has(hitC) ? comps.filter((id) => id !== hitC) : [...comps, hitC];
       else if (!selectedSet.has(hitC)) comps = [hitC];
       onSelection({ components: comps, wires: [] });
-      drag.current = { mode: 'move', start: w, last: w, moved: false };
+      drag.current = { mode: 'move', pointerId: e.pointerId, start: w, last: w, moved: false };
       svgRef.current?.setPointerCapture?.(e.pointerId);
       return;
     }
-    const hitW = hitWire(w, touch ? Math.max(10, 14 / viewport.scale) : 0);
+    const hitW = hitWire(w, touch ? TOUCH_TAP_PX : 6);
     if (hitW) {
       onSelection({ components: [], wires: e.shiftKey ? [...selection.wires, hitW] : [hitW] });
       return;
     }
     // Empty space → marquee / pan.
     if (!e.shiftKey) onSelection({ components: [], wires: [] });
-    drag.current = { mode: 'marquee', start: w, last: w, moved: false };
+    drag.current = { mode: 'marquee', pointerId: e.pointerId, start: w, last: w, moved: false };
     svgRef.current?.setPointerCapture?.(e.pointerId);
-  }, [toWorld, conns, tool, onCanvasClick, hitComponent, hitWire, selection, selectedSet, onSelection, viewport, localPt]);
+  }, [toWorld, conns, tool, onCanvasClick, hitComponent, hitWire, selection, selectedSet, onSelection, viewport, localPt, snapThreshold]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (pointers.current.has(e.pointerId)) pointers.current.set(e.pointerId, localPt(e.clientX, e.clientY));
@@ -235,13 +278,20 @@ export function Canvas(props: CanvasProps) {
       onViewport({ scale, panX: center.x - wx * scale, panY: center.y - wy * scale });
       return;
     }
-    const w = toWorld(e.clientX, e.clientY);
-    if (tool.type === 'wire' && draft) {
-      const touch = e.pointerType === 'touch' || e.pointerType === 'pen';
-      setCursor(snapPoint(w, conns, touch ? GRID : GRID * 0.6).pt);
+    const touch = e.pointerType === 'touch' || e.pointerType === 'pen';
+    const w = toWorld(e.clientX, e.clientY, touch);
+    const thresh = snapThreshold(touch);
+    if (tool.type === 'wire') {
+      // Update cursor during touch wire drag (pending) or mouse hover (draft).
+      if (touchWirePending.current?.pointerId === e.pointerId) {
+        touchWirePending.current.moved = true;
+        setCursor(snapPoint(w, conns, thresh).pt);
+      } else if (draft) {
+        setCursor(snapPoint(w, conns, thresh).pt);
+      }
     }
     const d = drag.current;
-    if (!d) return;
+    if (!d || d.pointerId !== e.pointerId) return;
     d.moved = true;
     if (d.mode === 'pan') {
       const dx = e.clientX - d.last.x;
@@ -262,7 +312,7 @@ export function Canvas(props: CanvasProps) {
     } else if (d.mode === 'marquee') {
       setMarquee({ x: Math.min(d.start.x, w.x), y: Math.min(d.start.y, w.y), w: Math.abs(w.x - d.start.x), h: Math.abs(w.y - d.start.y) });
     }
-  }, [toWorld, tool, draft, conns, viewport, onViewport, onCommit, selectedSet, localPt]);
+  }, [toWorld, tool, draft, conns, viewport, onViewport, onCommit, selectedSet, localPt, snapThreshold]);
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
@@ -274,27 +324,70 @@ export function Canvas(props: CanvasProps) {
         pinch.current = null;
         gestureLock.current = pointers.current.size > 0;
       }
+      touchWirePending.current = null;
+      return;
+    }
+    // Touch wire drawing: commit the wire point at the *final* cursor
+    // position (after the user has dragged to refine).
+    if (touchWirePending.current?.pointerId === e.pointerId) {
+      touchWirePending.current = null;
+      const touch = true;
+      const w = toWorld(e.clientX, e.clientY, touch);
+      const thresh = snapThreshold(touch);
+      const { pt: snapped, onConnection } = snapPoint(w, conns, thresh);
+      onCanvasClick(w, onConnection, snapped);
       return;
     }
     const d = drag.current;
-    if (d?.mode === 'marquee' && marquee) {
-      const hit = circuit.components.filter((c) => boxesIntersect(componentBox(c, 0), marquee)).map((c) => c.id);
-      const whit = circuit.wires.filter((wr) =>
-        marquee && wr.x1 >= marquee.x && wr.x1 <= marquee.x + marquee.w && wr.y1 >= marquee.y && wr.y1 <= marquee.y + marquee.h
-      ).map((wr) => wr.id);
-      onSelection({ components: hit, wires: whit });
+    // Only the pointer that started the gesture may end it — a stray finger
+    // lifting must not commit another finger's marquee or drag.
+    if (d && d.pointerId === e.pointerId) {
+      if (d.mode === 'marquee' && marquee) {
+        const hit = circuit.components.filter((c) => boxesIntersect(componentBox(c, 0), marquee)).map((c) => c.id);
+        const whit = circuit.wires.filter((wr) =>
+          marquee && wr.x1 >= marquee.x && wr.x1 <= marquee.x + marquee.w && wr.y1 >= marquee.y && wr.y1 <= marquee.y + marquee.h
+        ).map((wr) => wr.id);
+        onSelection({ components: hit, wires: whit });
+      }
+      if (d.mode === 'move' && d.moved) onEndCoalesce();
+      drag.current = null;
+      setMarquee(null);
     }
-    if (d?.mode === 'move' && d.moved) onEndCoalesce();
-    drag.current = null;
-    setMarquee(null);
-  }, [marquee, circuit.components, circuit.wires, onSelection, onEndCoalesce]);
+  }, [marquee, circuit.components, circuit.wires, onSelection, onEndCoalesce, toWorld, conns, onCanvasClick, snapThreshold]);
 
   const onPointerCancel = useCallback((e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
     if (pointers.current.size === 0) gestureLock.current = false;
     if (pinch.current && pointers.current.size < 2) pinch.current = null;
-    drag.current = null;
-    setMarquee(null);
+    if (touchWirePending.current?.pointerId === e.pointerId) touchWirePending.current = null;
+    if (drag.current?.pointerId === e.pointerId) {
+      drag.current = null;
+      setMarquee(null);
+    }
+  }, []);
+
+  // Safety net: a pointerup/cancel that never reaches the SVG (finger slid off
+  // the canvas, browser stole the gesture) would otherwise leave a stale entry
+  // in `pointers`, which wedges the canvas into pinch/lock mode and makes it
+  // ignore every later tap.
+  React.useEffect(() => {
+    const dropPointer = (e: PointerEvent) => { pointers.current.delete(e.pointerId); };
+    const resetGestures = () => {
+      pointers.current.clear();
+      pinch.current = null;
+      gestureLock.current = false;
+      drag.current = null;
+      touchWirePending.current = null;
+      setMarquee(null);
+    };
+    window.addEventListener('pointerup', dropPointer, true);
+    window.addEventListener('pointercancel', dropPointer, true);
+    window.addEventListener('blur', resetGestures);
+    return () => {
+      window.removeEventListener('pointerup', dropPointer, true);
+      window.removeEventListener('pointercancel', dropPointer, true);
+      window.removeEventListener('blur', resetGestures);
+    };
   }, []);
 
   const onDoubleClick = useCallback(() => {
@@ -336,11 +429,20 @@ export function Canvas(props: CanvasProps) {
     placeComponent(kind, toWorld(e.clientX, e.clientY));
   }, [placeComponent, toWorld]);
 
+  // Clear stale draft/cursor whenever the user leaves wire mode.
+  React.useEffect(() => {
+    if (tool.type !== 'wire') {
+      setDraft(null);
+      setCursor(null);
+    }
+  }, [tool.type]);
+
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (draft) {
           setDraft(null);
+          setCursor(null);
         } else if (tool.type !== 'select') {
           onToolChange({ type: 'select' });
         }
@@ -371,6 +473,7 @@ export function Canvas(props: CanvasProps) {
   const cursorStyle = tool.type === 'place' || tool.type === 'wire' ? 'crosshair' : drag.current?.mode === 'pan' ? 'grabbing' : 'default';
 
   return (
+    <>
     <svg
       ref={svgRef}
       className="h-full w-full touch-none select-none"
@@ -491,6 +594,28 @@ export function Canvas(props: CanvasProps) {
           strokeWidth={2} strokeDasharray="6 4" rx={4} pointerEvents="none" />
       )}
     </svg>
+      {/* Wire-in-progress controls — there is no right-click or reliable
+          double-tap on touch, so give every input a clear way to finish. */}
+      {tool.type === 'wire' && draft && draft.length >= 1 && (
+        <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-line bg-paper/95 px-2 py-1.5 shadow-sm">
+          <span className="px-1 text-xs text-muted">Tap the canvas to add points</span>
+          <button
+            type="button"
+            className="btn btn-primary h-7 px-3 text-xs"
+            onClick={() => finishWire(draft)}
+          >
+            Done
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost h-7 px-3 text-xs"
+            onClick={() => { setDraft(null); setCursor(null); }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 

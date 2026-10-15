@@ -51,9 +51,9 @@ function frequencies(opts: ACOptions): number[] {
 
 export function acAnalysis(net: Netlist, opts: ACOptions): ACResult {
   const n = net.nodeCount - 1;
-  if (n <= 0) return { ok: false, points: [], error: 'Circuit has no nodes above ground.' };
+  if (n <= 0) return { ok: false, points: [], error: 'Nothing to simulate yet — add a component and wire it up.' };
   if (opts.fStart <= 0 || opts.fStop <= opts.fStart)
-    return { ok: false, points: [], error: 'Invalid frequency range.' };
+    return { ok: false, points: [], error: 'The frequency range needs a stop value above the start value.' };
 
   // Diode small-signal conductances from the DC operating point.
   const dc = dcOperatingPoint(net);
@@ -141,7 +141,7 @@ export function acAnalysis(net: Netlist, opts: ACOptions): ACResult {
     }
 
     const x = solveComplex(A, z);
-    if (!x) return { ok: false, points, error: 'Singular matrix in AC analysis.' };
+    if (!x) return { ok: false, points, error: 'We could not solve this circuit across frequencies — check your connections and try again.' };
 
     const nodeMag = new Array<number>(net.nodeCount).fill(0);
     const nodePhase = new Array<number>(net.nodeCount).fill(0);

@@ -4,8 +4,8 @@
  * optional JSON-LD blocks. Every page passes a title/description; structured
  * data (SoftwareApplication, FAQ, Breadcrumb, Article) is opt-in per page.
  */
-const SITE = 'https://www.circuitsimlab.com';
-const NAME = 'CircuitSimulate';
+const SITE = 'https://circuitsimlab.com';
+const NAME = 'CircuitSimLab';
 
 interface Props {
   title: string;
@@ -26,7 +26,7 @@ const {
 
 const canonical = SITE + (path === '/' ? '/' : path.replace(/\/$/, ''));
 const fullTitle = path === '/' ? title : `${title} · ${NAME}`;
-const ogImage = `${SITE}/og-default.svg`;
+const ogImage = `${SITE}/og-default.jpg`;
 const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 

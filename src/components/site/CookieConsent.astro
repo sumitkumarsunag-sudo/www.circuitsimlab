@@ -1,0 +1,72 @@
+---
+/**
+ * Cookie consent banner for Google AdSense & Analytics compliance.
+ * Shows on first visit, stores preference in localStorage.
+ * Required by GDPR & Google AdSense policies.
+ */
+---
+
+<div
+  id="cookie-consent"
+  class="fixed inset-x-0 bottom-0 z-50 hidden border-t border-line bg-paper/98 backdrop-blur-md shadow-lg"
+  role="dialog"
+  aria-label="Cookie consent"
+>
+  <div class="container-page flex flex-col sm:flex-row items-start sm:items-center gap-3 py-3 sm:py-4">
+    <div class="flex-1 min-w-0">
+      <p class="text-sm text-ink-2 leading-relaxed">
+        We use cookies for analytics (Google Analytics) and advertising (Google AdSense) to improve
+        your experience and support this free tool. By continuing to use this site, you consent to
+        our use of cookies.
+        <a href="/privacy" class="text-accent hover:underline font-medium">Learn more</a>
+      </p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button
+        id="cookie-reject"
+        type="button"
+        class="btn btn-ghost text-xs sm:text-sm px-3 py-1.5"
+      >
+        Reject
+      </button>
+      <button
+        id="cookie-accept"
+        type="button"
+        class="btn btn-primary text-xs sm:text-sm px-4 py-1.5"
+      >
+        Accept
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CONSENT_KEY = 'csl_cookie_consent';
+  const banner = document.getElementById('cookie-consent');
+  const acceptBtn = document.getElementById('cookie-accept');
+  const rejectBtn = document.getElementById('cookie-reject');
+
+  function hideBanner() {
+    if (banner) banner.classList.add('hidden');
+  }
+
+  function showBanner() {
+    if (banner) banner.classList.remove('hidden');
+  }
+
+  // Check if consent was already given
+  const consent = localStorage.getItem(CONSENT_KEY);
+  if (!consent) {
+    showBanner();
+  }
+
+  acceptBtn?.addEventListener('click', () => {
+    localStorage.setItem(CONSENT_KEY, 'accepted');
+    hideBanner();
+  });
+
+  rejectBtn?.addEventListener('click', () => {
+    localStorage.setItem(CONSENT_KEY, 'rejected');
+    hideBanner();
+  });
+</script>

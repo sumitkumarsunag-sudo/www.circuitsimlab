@@ -40,7 +40,7 @@ export function dcOperatingPoint(net: Netlist): DCResult {
   const hasNonlinear = net.elements.some((e) => e.type === 'D');
 
   if (n <= 0) {
-    return emptyResult('Circuit has no nodes above ground.');
+    return emptyResult('Nothing to solve yet — add a component and wire it up.');
   }
 
   // Previous diode voltages for limiting.
@@ -60,7 +60,7 @@ export function dcOperatingPoint(net: Netlist): DCResult {
     x = solve(sys.A, sys.z);
     if (!x) {
       return {
-        ...emptyResult('The circuit has no unique solution (singular matrix).'),
+        ...emptyResult('This circuit has no complete current path yet, so there is nothing to solve. Check that everything is wired together.'),
         iterations,
       };
     }
@@ -85,7 +85,7 @@ export function dcOperatingPoint(net: Netlist): DCResult {
         ...buildResult(net, v, x),
         ok: false,
         iterations,
-        error: 'Solver did not converge. Check for missing connections or extreme component values.',
+        error: 'The solver could not settle on a result. Check for extreme component values or simplify the circuit and try again.',
       };
     }
   }

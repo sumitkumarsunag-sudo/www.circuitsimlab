@@ -11,8 +11,10 @@ import type { Viewport } from './geometry.ts';
 import { componentBox, nextRotation, uid, screenToWorld } from './geometry.ts';
 import { getComponentDef, GRID } from '../../lib/components/registry.ts';
 import { snapPoint } from './wiring.ts';
-import { runSimulation, hasDynamics, type RunResult, type SimMode } from './sim.ts';
+import { runSimulation, hasDynamics, type RunResult, type SimMode, type ShortCircuitInfo } from './sim.ts';
+import { BlastEffect } from './BlastEffect.tsx';
 import { emptyCircuit, type Circuit, type PlacedComponent } from '../../lib/circuit/types.ts';
+import { getFamousCircuit } from '../../lib/content/famousCircuits.ts';
 import { encodeShare, decodeShare, serializeCircuit } from '../../lib/circuit/serialize.ts';
 import { saveProject, newProject } from '../../lib/circuit/storage.ts';
 import { disposeSimClient } from '../../lib/engine/simClient.ts';
@@ -24,6 +26,14 @@ export interface SchematicEditorProps {
   initialName?: string;
   projectId?: string;
   readOnly?: boolean;
+}
+
+/** Centred error card — every simulation failure shows up this way. */
+interface RunPopup {
+  kind: 'short' | 'error';
+  title: string;
+  body: string;
+  hint?: string;
 }
 
 export default function SchematicEditor(props: SchematicEditorProps) {
@@ -52,6 +62,8 @@ export default function SchematicEditor(props: SchematicEditorProps) {
   const [error, setError] = useState<string | null>(null);
   const [showScope, setShowScope] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [blast, setBlast] = useState<ShortCircuitInfo | null>(null);
+  const [popup, setPopup] = useState<RunPopup | null>(null);
   const clipboard = useRef<PlacedComponent[]>([]);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -124,21 +136,41 @@ export default function SchematicEditor(props: SchematicEditorProps) {
   // ---- Simulation control --------------------------------------------------
   const doRun = useCallback(async () => {
     setError(null);
+    setBlast(null);
+    setPopup(null);
     setRunning(true);
     setAnimating(true);
     const useMode: SimMode = mode === 'transient' || hasDynamics(circuit) ? mode : 'dc';
     const result = await runSimulation(circuit, useMode);
     setRun(result);
     setFrame(useMode === 'transient' ? 0 : -1);
-    if (!result.ok) {
-      setError(result.error ?? 'Simulation failed.');
+
+    // Short circuit detected — play blast animation!
+    if (result.shortCircuit) {
+      setBlast(result.shortCircuit);
       setAnimating(false);
-      if (!result.issues.some((i) => i.severity === 'error')) setRunning(false);
-      else setRunning(false);
-    } else if (useMode === 'transient') {
-      setShowScope((s) => s || circuit.components.some((c) => c.kind === 'voltage_probe' || c.kind === 'current_probe'));
+      setRunning(false);
+      // The error card appears after the blast animation finishes.
+      return;
     }
-  }, [circuit, mode]);
+
+    if (!result.ok) {
+      const body = result.error ?? 'We could not run the simulation — please try again.';
+      setError(body);
+      setPopup({ kind: 'error', title: 'Simulation stopped', body });
+      setAnimating(false);
+      setRunning(false);
+    } else {
+      // Friendly heads-up when no ground symbol was placed: the run went ahead,
+      // only the reference point was chosen automatically.
+      if (result.compiled.implicitGround) {
+        showToast('No ground symbol — voltages are read from an automatic reference.');
+      }
+      if (useMode === 'transient') {
+        setShowScope((s) => s || circuit.components.some((c) => c.kind === 'voltage_probe' || c.kind === 'current_probe'));
+      }
+    }
+  }, [circuit, mode, showToast]);
 
   const doStop = useCallback(() => {
     setRunning(false);
@@ -221,7 +253,7 @@ export default function SchematicEditor(props: SchematicEditorProps) {
       setDirty(false);
       showToast('Saved to this browser');
     } catch (e) {
-      showToast('Save failed: ' + (e instanceof Error ? e.message : String(e)));
+      showToast('Could not save: ' + (e instanceof Error ? e.message : String(e)));
     }
   }, [projectId, name, circuit, showToast]);
 
@@ -265,7 +297,7 @@ export default function SchematicEditor(props: SchematicEditorProps) {
         }
       }
     } catch (err) {
-      showToast('Export failed: ' + (err instanceof Error ? err.message : String(err)));
+      showToast('Could not export: ' + (err instanceof Error ? err.message : String(err)));
     }
   }, [circuit, name, showToast]);
 
@@ -369,6 +401,65 @@ export default function SchematicEditor(props: SchematicEditorProps) {
     showToast(`Placed ${def.name}`);
   }, [viewport, commitDirty, isCompact, showToast]);
 
+  /**
+   * Drop a whole famous circuit into the middle of the current view, with
+   * fresh ids so it can be inserted more than once without colliding.
+   */
+  const insertCircuit = useCallback((circuitId: string) => {
+    if (props.readOnly) return;
+    const def = getFamousCircuit(circuitId);
+    if (!def) return;
+    const built = def.build();
+
+    // Centre the inserted schematic in whatever the user is currently looking at.
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const c of built.components) {
+      minX = Math.min(minX, c.x); maxX = Math.max(maxX, c.x);
+      minY = Math.min(minY, c.y); maxY = Math.max(maxY, c.y);
+    }
+    for (const w of built.wires) {
+      minX = Math.min(minX, w.x1, w.x2); maxX = Math.max(maxX, w.x1, w.x2);
+      minY = Math.min(minY, w.y1, w.y2); maxY = Math.max(maxY, w.y1, w.y2);
+    }
+    if (!isFinite(minX)) return;
+
+    const el = wrapRef.current;
+    const canvasSvg = el?.querySelector('svg[aria-label="Schematic canvas"]') as SVGSVGElement | null;
+    const r = canvasSvg ? canvasSvg.getBoundingClientRect() : el?.getBoundingClientRect();
+    const center = r ? screenToWorld(r.width / 2, r.height / 2, viewport) : { x: 400, y: 300 };
+    const dx = Math.round((center.x - (minX + maxX) / 2) / GRID) * GRID;
+    const dy = Math.round((center.y - (minY + maxY) / 2) / GRID) * GRID;
+
+    const components: PlacedComponent[] = built.components.map((c) => ({
+      ...c,
+      id: uid(c.kind.slice(0, 3) + '_'),
+      x: c.x + dx,
+      y: c.y + dy,
+    }));
+    const wires = built.wires.map((w) => ({
+      ...w,
+      id: uid('w_'),
+      x1: w.x1 + dx,
+      y1: w.y1 + dy,
+      x2: w.x2 + dx,
+      y2: w.y2 + dy,
+    }));
+
+    commitDirty((c) => ({
+      ...c,
+      components: [...c.components, ...components],
+      wires: [...c.wires, ...wires],
+    }));
+    setSelection(emptySelection());
+    setMode(def.mode);
+    setTool({ type: 'select' });
+    if (isCompact) setPaletteCollapsed(true);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(30); } catch {}
+    }
+    showToast(`Added ${def.name} — press Run`);
+  }, [props.readOnly, viewport, commitDirty, isCompact, showToast]);
+
   return (
     <div ref={wrapRef} className="flex h-dvh w-screen flex-col overflow-hidden bg-paper">
       <Toolbar
@@ -411,6 +502,7 @@ export default function SchematicEditor(props: SchematicEditorProps) {
           collapsed={paletteCollapsed}
           onToggle={() => setPaletteCollapsed((c) => !c)}
           onDropAtScreen={handleDropAtScreen}
+          onInsertCircuit={insertCircuit}
         />
         <div className="relative min-w-0 flex-1">
           <Canvas
@@ -432,22 +524,6 @@ export default function SchematicEditor(props: SchematicEditorProps) {
             onPlaced={() => setTool({ type: 'select' })}
             onToolChange={setTool}
           />
-          {error && (
-            <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center px-4">
-              <div className="pointer-events-auto max-w-lg rounded border border-err/30 bg-paper px-3 py-2 text-sm text-err shadow-sm flex items-start gap-2">
-                <span className="flex-1">{error}</span>
-                <button
-                  onClick={() => setError(null)}
-                  aria-label="Dismiss error"
-                  className="shrink-0 rounded p-0.5 text-err/60 hover:text-err hover:bg-err/10 transition-colors"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )}
           <div className="absolute left-2 top-2 md:top-auto md:bottom-2 flex items-center gap-2">
             <Diagnostics run={run} error={error} onDismissError={() => setError(null)} />
           </div>
@@ -458,6 +534,61 @@ export default function SchematicEditor(props: SchematicEditorProps) {
             >
               {showScope ? 'Hide' : 'Show'} oscilloscope
             </button>
+          )}
+
+          {/* Short-circuit blast animation */}
+          {blast && (
+            <BlastEffect
+              worldX={blast.x}
+              worldY={blast.y}
+              viewport={viewport}
+              onDone={() => {
+                setBlast(null);
+                // Show the error card after the blast finishes.
+                setPopup({
+                  kind: 'short',
+                  title: 'Short Circuit Detected!',
+                  body: run?.error ?? 'A short circuit was detected.',
+                  hint: 'Check your wiring — a component is shorted or has a very low resistance path.',
+                });
+              }}
+            />
+          )}
+
+          {/* Error card — every simulation failure shows up here. */}
+          {popup && (
+            <div className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center px-4">
+              <div className={`error-popup${popup.kind === 'short' ? ' error-popup--shake' : ''} pointer-events-auto w-full max-w-md rounded-xl border-2 border-err/50 bg-paper px-6 py-5 shadow-2xl`}>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-err/10">
+                    {popup.kind === 'short' ? (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-err)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l-1-8z" />
+                      </svg>
+                    ) : (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-err)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 8v5M12 16h.01" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-err">{popup.title}</p>
+                    <p className="mt-1 text-sm text-ink-2">{popup.body}</p>
+                    {popup.hint && <p className="mt-2 text-xs text-muted">{popup.hint}</p>}
+                  </div>
+                  <button
+                    onClick={() => setPopup(null)}
+                    aria-label="Dismiss"
+                    className="shrink-0 rounded-lg p-1.5 text-muted hover:text-err hover:bg-err/10 transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
         {selectedComponent && (

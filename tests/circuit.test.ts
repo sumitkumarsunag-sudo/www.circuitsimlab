@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { compileNetlist } from '../src/lib/circuit/netlist.ts';
 import { validate } from '../src/lib/circuit/validate.ts';
 import { dcOperatingPoint } from '../src/lib/engine/dc.ts';
+import { runSimulation } from '../src/components/editor/sim.ts';
 import type { Circuit } from '../src/lib/circuit/types.ts';
 
 /** Build the canonical 9 V battery → 1 kΩ → ground loop from geometry. */
@@ -38,12 +39,48 @@ describe('Netlist compiler', () => {
     expect(Math.abs(r.currents['R1'])).toBeCloseTo(0.009, 6);
   });
 
-  it('flags a missing ground', () => {
+  it('runs without a ground symbol, leaving only a friendly hint', () => {
     const c = batteryResistorGround();
     c.components = c.components.filter((x) => x.kind !== 'ground');
     const compiled = compileNetlist(c);
+    expect(compiled.implicitGround).toBe(true);
+    expect(compiled.groundNode).toBe(0);
+
     const issues = validate(c, compiled);
-    expect(issues.some((i) => i.severity === 'error' && /ground/i.test(i.message))).toBe(true);
+    // Nothing blocks the run: a missing ground is a hint, not an error.
+    expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0);
+    expect(issues.some((i) => /ground/i.test(i.message))).toBe(true);
+
+    // Voltage differences are unaffected by the chosen reference.
+    const r = dcOperatingPoint(compiled.netlist);
+    expect(r.ok).toBe(true);
+    expect(Math.abs(r.currents['R1'])).toBeCloseTo(0.009, 6);
+  });
+
+  it('runSimulation still returns a result with no ground placed', async () => {
+    const c = batteryResistorGround();
+    c.components = c.components.filter((x) => x.kind !== 'ground');
+    const result = await runSimulation(c, 'dc');
+    expect(result.ok).toBe(true);
+    expect(result.compiled.implicitGround).toBe(true);
+    expect(result.issues.some((i) => i.severity === 'error')).toBe(false);
+  });
+
+  it('stays quiet about a part that is dropped but not connected yet', () => {
+    const c = batteryResistorGround();
+    // A spare resistor sitting off on its own, touching nothing.
+    c.components.push({ id: 'R9', kind: 'resistor', x: 600, y: 600, rotation: 0, flip: false, props: { resistance: '1k' } });
+    const compiled = compileNetlist(c);
+    const issues = validate(c, compiled);
+    expect(issues).toHaveLength(0);
+  });
+
+  it('still hints when a wired part has one loose terminal', () => {
+    const c = batteryResistorGround();
+    c.wires = c.wires.filter((w) => w.id !== 'w2'); // unhook R1.b from the battery
+    const compiled = compileNetlist(c);
+    const issues = validate(c, compiled);
+    expect(issues.some((i) => /terminal "b"/i.test(i.message))).toBe(true);
   });
 
   it('merges terminals that share a coordinate without a wire', () => {

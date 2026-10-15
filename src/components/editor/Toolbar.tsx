@@ -67,7 +67,7 @@ export interface ToolbarProps {
 export function Toolbar(p: ToolbarProps) {
   return (
     <div className="flex min-h-11 flex-wrap items-center gap-1 border-b border-line bg-paper px-2 py-1 md:h-11 md:flex-nowrap md:py-0">
-      <a href="/" className="mr-1 flex items-center" aria-label="CircuitSimulate home" title="Home">
+      <a href="/" className="mr-1 flex items-center" aria-label="CircuitSimLab home" title="Home">
         <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <path d="M23 8 H12 a4 4 0 0 0 -4 4 v8 a4 4 0 0 0 4 4 h11" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" />
           <circle cx="23" cy="8" r="3.2" fill="var(--color-accent)" />

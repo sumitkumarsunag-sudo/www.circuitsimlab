@@ -4,9 +4,9 @@ import Layout from '../layouts/Layout.astro';
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
-  name: 'About CircuitSimulate',
+  name: 'About CircuitSimLab',
   description:
-    'CircuitSimulate is a free, browser-based circuit simulator built on a real modified-nodal-analysis solver that runs DC, transient and AC analysis client-side.',
+    'CircuitSimLab is a free, browser-based circuit simulator built on a real modified-nodal-analysis solver that runs DC, transient and AC analysis client-side.',
 };
 
 const principles = [
@@ -26,8 +26,8 @@ const principles = [
 ---
 
 <Layout
-  title="About — CircuitSimulate"
-  description="Why CircuitSimulate exists: a real browser-based circuit simulator with an actual MNA solver running DC, transient and AC analysis in a Web Worker. Build. Simulate. Understand."
+  title="About — CircuitSimLab"
+  description="Why CircuitSimLab exists: a real browser-based circuit simulator with an actual MNA solver running DC, transient and AC analysis in a Web Worker. Build. Simulate. Understand."
   path="/about"
   jsonLd={jsonLd}
 >
@@ -40,7 +40,7 @@ const principles = [
         Build. Simulate. Understand.
       </h1>
       <p class="mt-5 max-w-2xl text-lg text-ink-2">
-        CircuitSimulate is a real electronics lab that lives in a browser tab. You draw a schematic,
+        CircuitSimLab is a real electronics lab that lives in a browser tab. You draw a schematic,
         press run, and a genuine solver works out the voltages and currents — then draws them back
         onto the wires you built.
       </p>
@@ -58,7 +58,7 @@ const principles = [
         open, and pleasant enough that you reach for it before wiring up a breadboard.
       </p>
       <p>
-        So the core of CircuitSimulate is a <strong>modified-nodal-analysis (MNA)</strong> engine —
+        So the core of CircuitSimLab is a <strong>modified-nodal-analysis (MNA)</strong> engine —
         the same approach that powers SPICE. It assembles the system of equations for your circuit
         and solves it for a <strong>DC operating point</strong>, steps it through time for
         <strong>transient analysis</strong>, and sweeps frequency for <strong>AC analysis</strong>.

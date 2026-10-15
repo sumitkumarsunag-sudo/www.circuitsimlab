@@ -74,12 +74,12 @@ export function transientAnalysis(net: Netlist, opts: TransientOptions): Transie
   const { tStop, tStep } = opts;
   const tStart = opts.tStart ?? 0;
   const n = net.nodeCount - 1;
-  if (n <= 0) return { ok: false, points: [], error: 'Circuit has no nodes above ground.' };
-  if (tStep <= 0 || tStop <= 0) return { ok: false, points: [], error: 'Invalid time settings.' };
+  if (n <= 0) return { ok: false, points: [], error: 'Nothing to simulate yet — add a component and wire it up.' };
+  if (tStep <= 0 || tStop <= 0) return { ok: false, points: [], error: 'The time settings need a step and stop time greater than zero.' };
 
   const steps = Math.floor(tStop / tStep);
   if (steps > MAX_STEPS)
-    return { ok: false, points: [], error: 'Too many time steps — increase the step size.' };
+    return { ok: false, points: [], error: 'This run would take too many steps. Increase the time step and try again.' };
 
   const branchIds = branchIdsFor(net);
   const hasDiode = net.elements.some((e) => e.type === 'D');
@@ -156,7 +156,7 @@ export function transientAnalysis(net: Netlist, opts: TransientOptions): Transie
       }
 
       x = solve(sys.A, sys.z);
-      if (!x) return { ok: false, points, error: 'Singular matrix during transient step.' };
+      if (!x) return { ok: false, points, error: 'The circuit stopped being solvable part-way through — check your connections and run it again.' };
 
       const vNew = new Array<number>(net.nodeCount).fill(0);
       for (let node = 1; node < net.nodeCount; node++) vNew[node] = x[node - 1];

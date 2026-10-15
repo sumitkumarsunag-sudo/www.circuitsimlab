@@ -23,7 +23,7 @@
   <circle cx="520" cy="300" r="7" fill="#2f6fed"/>
 
   <!-- wordmark -->
-  <text x="640" y="270" font-family="ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif" font-size="76" font-weight="700" fill="#0b1220">CircuitSimulate</text>
+  <text x="640" y="270" font-family="ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif" font-size="76" font-weight="700" fill="#0b1220">CircuitSimLab</text>
   <text x="642" y="340" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="34" fill="#0e7490">Build. Simulate. Understand.</text>
   <text x="642" y="410" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" fill="#6a7788">Free online circuit simulator — real DC, transient &amp; AC analysis</text>
 </svg>

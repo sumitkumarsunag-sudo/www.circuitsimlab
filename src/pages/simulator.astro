@@ -4,18 +4,44 @@ import SchematicEditor from '../components/editor/SchematicEditor.tsx';
 ---
 
 <Layout
-  title="Circuit Simulator — Build & Simulate Online | CircuitSimulate"
+  title="Circuit Simulator — Build & Simulate Online | CircuitSimLab"
   description="Free online circuit simulator. Drag components onto the canvas, wire them up, and run real DC, transient and AC analysis in your browser. No install, no sign-up."
   path="/simulator"
   bare
 >
   <SchematicEditor client:only="react" />
   <noscript>
-    <div class="container-page py-16 text-center">
-      <h1 class="text-2xl font-semibold">JavaScript required</h1>
-      <p class="mt-3 text-ink-2">The interactive simulator needs JavaScript enabled. Browse
-        <a class="prose-link" href="/examples">example circuits</a> or read the
-        <a class="prose-link" href="/documentation">documentation</a> instead.</p>
+    <div class="container-page py-16">
+      <h1 class="text-2xl font-semibold">CircuitSimLab — Interactive Circuit Simulator</h1>
+      <p class="mt-3 text-ink-2 max-w-2xl">
+        The interactive circuit simulator requires JavaScript to run the schematic editor and the
+        Modified Nodal Analysis (MNA) solver in your browser. Please enable JavaScript to use the
+        full simulator experience.
+      </p>
+
+      <h2 class="mt-8 text-xl font-semibold">What you can do with the simulator</h2>
+      <ul class="mt-3 text-ink-2 space-y-2 list-disc ml-5">
+        <li>Draw schematics by dragging components (resistors, capacitors, inductors, diodes, LEDs, transistors, voltage and current sources) onto a snapping grid.</li>
+        <li>Wire terminals together with orthogonal auto-routing for clean connections.</li>
+        <li>Run <strong>DC operating point</strong> analysis to find steady-state node voltages and branch currents.</li>
+        <li>Run <strong>transient analysis</strong> to simulate circuits over time — watch capacitors charge, oscillators start, and signals propagate.</li>
+        <li>Run <strong>AC frequency sweep</strong> analysis to find the frequency response of filters and amplifiers.</li>
+        <li>Attach a virtual <strong>multimeter</strong> to read precise voltage and current values.</li>
+        <li>Use a 2-channel <strong>oscilloscope</strong> with Volt/Div and Time/Div controls to inspect waveforms.</li>
+        <li>Save projects locally, share circuits via URL, and export schematics as JSON.</li>
+      </ul>
+
+      <h2 class="mt-8 text-xl font-semibold">Explore without JavaScript</h2>
+      <p class="mt-3 text-ink-2">
+        While you need JavaScript for the interactive simulator, you can still explore these resources:
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <a class="prose-link" href="/examples">Browse example circuits</a>
+        <a class="prose-link" href="/learn">Learn electronics fundamentals</a>
+        <a class="prose-link" href="/components">View the component library</a>
+        <a class="prose-link" href="/documentation">Read the documentation</a>
+        <a class="prose-link" href="/tools">Use electronics calculators</a>
+      </div>
     </div>
   </noscript>
 </Layout>

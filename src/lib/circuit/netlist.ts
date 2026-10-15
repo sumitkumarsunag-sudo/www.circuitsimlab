@@ -5,7 +5,9 @@
  * Connectivity is resolved with a union-find over connection points. Two pins at
  * the same coordinate are connected; a wire connects its two endpoints; and a
  * pin lying on the interior of a wire forms a T-junction. The ground component
- * pins the reference node (0).
+ * pins the reference node (0). When no ground is placed the compiler elects the
+ * best-connected net as an implicit reference so the circuit can still solve —
+ * only the absolute readings shift, every voltage difference stays exact.
  */
 import { REGISTRY } from '../components/registry.ts';
 import type { CompileContext } from '../components/primitives.ts';
@@ -64,6 +66,8 @@ export interface CompiledCircuit {
   /** node number -> list of coordinate keys on that net. */
   netCoords: Map<number, string[]>;
   groundNode: number;
+  /** True when no Ground component was placed and a net was elected as 0 V. */
+  implicitGround: boolean;
 }
 
 export function compileNetlist(circuit: Circuit): CompiledCircuit {
@@ -104,6 +108,27 @@ export function compileNetlist(circuit: Circuit): CompiledCircuit {
   const groundRoots = new Set<string>();
   for (const tc of termCoords) {
     if (tc.comp.kind === 'ground') groundRoots.add(uf.find(key(tc.x, tc.y)));
+  }
+
+  // 3b. No Ground symbol placed? Elect the best-connected net (most terminals,
+  // first-seen wins ties) as the 0 V reference instead. Simulation then runs as
+  // normal and the UI simply notes that the reference was chosen automatically.
+  let implicitGround = false;
+  if (groundRoots.size === 0 && termCoords.length > 0) {
+    const weight = new Map<string, number>();
+    for (const tc of termCoords) {
+      const r = uf.find(key(tc.x, tc.y));
+      weight.set(r, (weight.get(r) ?? 0) + 1);
+    }
+    let best = '';
+    let bestWeight = -1;
+    for (const tc of termCoords) {
+      const r = uf.find(key(tc.x, tc.y));
+      const w = weight.get(r)!;
+      if (w > bestWeight) { best = r; bestWeight = w; }
+    }
+    groundRoots.add(best);
+    implicitGround = true;
   }
 
   // 4. Assign node numbers (ground = 0).
@@ -155,5 +180,6 @@ export function compileNetlist(circuit: Circuit): CompiledCircuit {
     wireNode,
     netCoords,
     groundNode: groundRoots.size ? 0 : -1,
+    implicitGround,
   };
 }

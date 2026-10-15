@@ -139,7 +139,7 @@ export async function exportAsPDF(name: string): Promise<void> {
   const arrayBuf = await blob.arrayBuffer();
   const bytes = new Uint8Array(arrayBuf);
 
-  const pdfBlob = buildMinimalPDF(bytes, data.width * 2, data.height * 2, `${name} — CircuitSimulate`);
+  const pdfBlob = buildMinimalPDF(bytes, data.width * 2, data.height * 2, `${name} — CircuitSimLab`);
   downloadBlob(pdfBlob, `${name}.pdf`);
 }
 
@@ -228,7 +228,7 @@ function buildMinimalPDF(
 
   // Obj 6 - Info (title)
   offsets.push(pos);
-  push(`6 0 obj\n<< /Title (${title.replace(/[()\\]/g, '\\$&')}) /Producer (CircuitSimulate) >>\nendobj\n`);
+  push(`6 0 obj\n<< /Title (${title.replace(/[()\\]/g, '\\$&')}) /Producer (CircuitSimLab) >>\nendobj\n`);
 
   // xref
   const xrefOff = pos;
@@ -383,7 +383,7 @@ function buildMinimalDOCX(title: string, imageBase64: string, imgW: number, imgH
       <w:pPr><w:jc w:val="center"/><w:spacing w:before="200"/></w:pPr>
       <w:r>
         <w:rPr><w:color w:val="6A7788"/><w:sz w:val="20"/></w:rPr>
-        <w:t>Exported from CircuitSimulate</w:t>
+        <w:t>Exported from CircuitSimLab</w:t>
       </w:r>
     </w:p>
     <w:p>

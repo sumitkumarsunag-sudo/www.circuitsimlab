@@ -19,7 +19,7 @@ interface PlaceOpts {
 }
 
 /** A builder that tracks placed parts and can wire terminals together. */
-class Builder {
+export class Builder {
   components: PlacedComponent[] = [];
   wires: { id: string; x1: number; y1: number; x2: number; y2: number }[] = [];
 
@@ -189,6 +189,56 @@ function rcCharging(): Circuit {
   return b.build();
 }
 
+/* ---- 555 astable (pulse + LED blinker) --------------------------------- */
+function astable555(): Circuit {
+  const b = new Builder();
+  const pulse = b.place('pulse_source', 160, 260, {
+    props: { v1: '0', v2: '5', freq: '2', duty: 0.5, rise: '1u', label: 'V1' },
+  });
+  const r = b.place('resistor', 300, 160, { props: { resistance: '220', label: 'R1' } });
+  const led = b.place('led', 440, 240, { rotation: 90, props: { color: 'red', vf: '2', label: 'D1' } });
+  const probe = b.place('voltage_probe', 500, 200, { rotation: 90, props: { channel: '1', label: 'Vout' } });
+  const gnd = b.place('ground', 160, 380);
+  // Top rail: pulse.pos ── R.a
+  b.wire(b.term(pulse, 'pos'), { x: 160, y: 160 });
+  b.wire({ x: 160, y: 160 }, b.term(r, 'a'));
+  // R.b ── LED anode ── probe
+  b.wire(b.term(r, 'b'), { x: 440, y: 160 });
+  b.wire({ x: 440, y: 160 }, b.term(led, 'anode'));
+  b.wire(b.term(probe, 'p'), b.term(led, 'anode'));
+  // LED cathode ── ground rail
+  b.wire(b.term(led, 'cathode'), { x: 440, y: 360 });
+  b.wire({ x: 440, y: 360 }, { x: 160, y: 360 });
+  b.wire({ x: 160, y: 360 }, b.term(pulse, 'neg'));
+  b.wire({ x: 160, y: 360 }, b.term(gnd, 'p'));
+  return b.build();
+}
+
+/* ---- Diode half-wave rectifier ----------------------------------------- */
+function diodeRectifier(): Circuit {
+  const b = new Builder();
+  const ac = b.place('pulse_source', 160, 260, {
+    props: { v1: '-5', v2: '5', freq: '50', duty: 0.5, rise: '100u', label: 'Vin' },
+  });
+  const d = b.place('diode', 300, 160, { props: { label: 'D1' } });
+  const rLoad = b.place('resistor', 440, 240, { rotation: 90, props: { resistance: '1k', label: 'R1' } });
+  const probe = b.place('voltage_probe', 500, 200, { rotation: 90, props: { channel: '1', label: 'Vout' } });
+  const gnd = b.place('ground', 160, 380);
+  // Source pos ── diode anode
+  b.wire(b.term(ac, 'pos'), { x: 160, y: 160 });
+  b.wire({ x: 160, y: 160 }, b.term(d, 'anode'));
+  // Diode cathode ── load ── probe
+  b.wire(b.term(d, 'cathode'), { x: 440, y: 160 });
+  b.wire({ x: 440, y: 160 }, b.term(rLoad, 'a'));
+  b.wire(b.term(probe, 'p'), b.term(rLoad, 'a'));
+  // Bottom rail
+  b.wire(b.term(rLoad, 'b'), { x: 440, y: 360 });
+  b.wire({ x: 440, y: 360 }, { x: 160, y: 360 });
+  b.wire({ x: 160, y: 360 }, b.term(ac, 'neg'));
+  b.wire({ x: 160, y: 360 }, b.term(gnd, 'p'));
+  return b.build();
+}
+
 export const EXAMPLES: Example[] = [
   {
     slug: 'ohms-law',
@@ -295,6 +345,42 @@ export const EXAMPLES: Example[] = [
       { label: 'Vc at 5τ', value: '≈ 4.97 V' },
     ],
     build: rcCharging,
+  },
+  {
+    slug: '555-astable',
+    title: '555 Timer LED Blinker',
+    category: 'Dynamics',
+    mode: 'transient',
+    summary: 'A pulse source drives an LED through a series resistor — watch it blink on the scope.',
+    explain: [
+      'A 555 timer in astable mode produces a continuous square wave. Here we model the output as a 2 Hz pulse source toggling between 0 V and 5 V, driving a red LED through a 220 Ω current-limiting resistor.',
+      'Run the transient analysis to watch the LED blink on and off. The voltage probe captures the square wave on the oscilloscope. Change the frequency in the pulse source properties to speed up or slow down the blink rate.',
+    ],
+    results: [
+      { label: 'Frequency', value: '2 Hz' },
+      { label: 'High level', value: '5 V' },
+      { label: 'Series resistor', value: '220 Ω' },
+      { label: 'LED current (on)', value: '≈ 13.6 mA' },
+    ],
+    build: astable555,
+  },
+  {
+    slug: 'diode-rectifier',
+    title: 'Diode Half-Wave Rectifier',
+    category: 'Dynamics',
+    mode: 'transient',
+    summary: 'A single diode clips negative half-cycles — the simplest AC-to-DC conversion.',
+    explain: [
+      'A half-wave rectifier passes only the positive half of an alternating input signal. The diode conducts when the input exceeds its forward voltage (≈ 0.7 V) and blocks when the input goes negative.',
+      'Run the transient analysis and the voltage probe shows only the positive half-cycles appearing across the load resistor. The negative halves are blocked by the diode, with a small forward-voltage drop on the positive peaks.',
+    ],
+    results: [
+      { label: 'Input peak', value: '±5 V' },
+      { label: 'Output peak', value: '≈ 4.3 V' },
+      { label: 'Frequency', value: '50 Hz' },
+      { label: 'Load', value: '1 kΩ' },
+    ],
+    build: diodeRectifier,
   },
 ];
 

@@ -1,12 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { allComponents } from '../lib/components/registry.ts';
+import { EXAMPLES } from '../lib/content/examples.ts';
 import FaqSection, { faqJsonLd } from '../components/site/FaqSection.astro';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'CircuitSimulate',
+  name: 'CircuitSimLab',
   applicationCategory: 'DesignApplication',
   operatingSystem: 'Web',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -61,16 +62,16 @@ const quickExamples = [
     summary: 'Two-resistor divider illustrating Ohm’s law, node voltages and loaded currents.',
   },
   {
-    slug: 'npn-switch',
-    title: 'Transistor Saturation Switch',
-    mode: 'dc',
-    summary: 'BJT NPN transistor driven into saturation to switch high-current loads.',
+    slug: 'diode-rectifier',
+    title: 'Diode Half-Wave Rectifier',
+    mode: 'transient',
+    summary: 'A single diode clips negative half-cycles — the simplest AC-to-DC conversion.',
   },
 ];
 ---
 
 <Layout
-  title="CircuitSimulate — Build. Simulate. Understand."
+  title="CircuitSimLab — Build. Simulate. Understand."
   description="Free online circuit simulator with real DC, transient and AC analysis. Drag components onto the canvas, wire them up, and watch current flow — right in your browser."
   path="/"
   jsonLd={jsonLd}
@@ -152,11 +153,18 @@ const quickExamples = [
               <g stroke="var(--color-signal)" stroke-width="2.5" fill="none" stroke-linecap="round" class="flow">
                 <path d="M80 60 H280" /><path d="M280 60 V180" /><path d="M280 180 H80" /><path d="M80 180 V60" />
               </g>
-              <!-- battery -->
+              <!-- battery (rotated 90° for vertical wire) -->
               <g stroke="var(--color-ink)" stroke-width="2" transform="translate(80 120)">
-                <line x1="0" y1="-14" x2="0" y2="14" stroke-width="3" />
-                <line x1="-8" y1="-8" x2="-8" y2="8" />
-                <rect x="-14" y="-22" width="28" height="44" fill="var(--color-paper)" stroke="none" opacity="0" />
+                <!-- long plate (+) -->
+                <line x1="-14" y1="-8" x2="14" y2="-8" stroke-width="2" />
+                <!-- short plate -->
+                <line x1="-7" y1="0" x2="7" y2="0" stroke-width="2" />
+                <!-- long plate -->
+                <line x1="-14" y1="8" x2="14" y2="8" stroke-width="2" />
+                <!-- short plate (−) -->
+                <line x1="-7" y1="16" x2="7" y2="16" stroke-width="2" />
+                <!-- + sign -->
+                <text x="18" y="-4" font-size="12" fill="var(--color-ink)" stroke="none">+</text>
               </g>
               <text x="54" y="124" class="tnum font-medium" font-size="11" fill="var(--color-muted)">9V</text>
               <!-- resistor (top) -->
@@ -198,7 +206,7 @@ const quickExamples = [
         <h2 class="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Try pre-built circuits</h2>
       </div>
       <a href="/examples" class="text-sm font-medium text-accent hover:underline inline-flex items-center gap-1">
-        All {quickExamples.length * 4}+ examples →
+        All {EXAMPLES.length}+ examples →
       </a>
     </div>
 
@@ -234,7 +242,7 @@ const quickExamples = [
     <div class="container-page py-12 sm:py-16 md:py-20">
       <div class="max-w-2xl">
         <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Built like a real laboratory instrument</h2>
-        <p class="mt-2 text-sm sm:text-base text-ink-2">CircuitSimulate is powered by authentic Modified Nodal Analysis — not cartoon animations.</p>
+        <p class="mt-2 text-sm sm:text-base text-ink-2">CircuitSimLab is powered by authentic Modified Nodal Analysis — not cartoon animations.</p>
       </div>
 
       <div class="mt-8 sm:mt-12 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
@@ -301,7 +309,7 @@ const quickExamples = [
       </p>
       <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
         <a href="/simulator" class="btn btn-primary text-base w-full sm:w-auto justify-center py-2.5 px-6 shadow-sm">
-          Launch CircuitSimulate
+          Launch CircuitSimLab
         </a>
         <a href="/components" class="btn btn-ghost text-base w-full sm:w-auto justify-center py-2.5 px-5">
           View Component Library

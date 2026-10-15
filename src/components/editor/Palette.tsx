@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CATEGORIES, componentsByCategory, getComponentDef } from '../../lib/components/registry.ts';
 import type { ComponentDef } from '../../lib/components/primitives.ts';
 import { renderSymbolInner } from '../../lib/components/renderSymbol.ts';
+import { FAMOUS_CIRCUITS } from '../../lib/content/famousCircuits.ts';
 
 function Thumb({ def }: { def: ComponentDef }) {
   const html = renderSymbolInner(def.symbol, { stroke: 'currentColor', strokeWidth: 2 });
@@ -18,6 +19,8 @@ export interface PaletteProps {
   collapsed: boolean;
   onToggle: () => void;
   onDropAtScreen?: (kind: string, clientX: number, clientY: number) => void;
+  /** Drops a whole prebuilt circuit onto the canvas. */
+  onInsertCircuit?: (id: string) => void;
 }
 
 export function Palette({
@@ -26,8 +29,11 @@ export function Palette({
   collapsed,
   onToggle,
   onDropAtScreen,
+  onInsertCircuit,
 }: PaletteProps) {
   const [query, setQuery] = useState('');
+  // Phones show one list at a time so whole circuits are a tap away, not a scroll.
+  const [tab, setTab] = useState<'parts' | 'circuits'>('parts');
   const [dragState, setDragState] = useState<{ def: ComponentDef; clientX: number; clientY: number } | null>(null);
   const touchState = useRef<{ startX: number; startY: number; def: ComponentDef; isDragging: boolean } | null>(null);
   const byCat = useMemo(() => componentsByCategory(), []);
@@ -35,6 +41,19 @@ export function Palette({
 
   const filtered = (list: ComponentDef[]) =>
     q ? list.filter((d) => d.name.toLowerCase().includes(q) || d.kind.includes(q) || d.ref.toLowerCase().includes(q)) : list;
+
+  const circuits = useMemo(
+    () =>
+      q
+        ? FAMOUS_CIRCUITS.filter((c) => c.name.toLowerCase().includes(q) || c.summary.toLowerCase().includes(q))
+        : FAMOUS_CIRCUITS,
+    [q]
+  );
+
+  const hasParts = useMemo(
+    () => CATEGORIES.some((cat) => filtered(byCat[cat.id] ?? []).length > 0),
+    [q, byCat]
+  );
 
   // Window-level touch listeners while dragging to ensure smooth tracking even when finger leaves palette
   useEffect(() => {
@@ -119,7 +138,7 @@ export function Palette({
   return (
     <>
       <aside
-        className={`absolute inset-x-0 bottom-0 z-30 flex max-h-[64vh] flex-col rounded-t-2xl border-t border-line bg-surface shadow-2xl transition-opacity md:inset-x-auto md:inset-y-0 md:left-0 md:max-h-none md:w-60 md:shrink-0 md:rounded-none md:border-t-0 md:border-r md:shadow-none md:relative md:z-auto ${
+        className={`absolute inset-x-0 bottom-0 z-30 flex max-h-[70vh] flex-col rounded-t-2xl border-t border-line bg-surface shadow-2xl transition-opacity md:inset-x-auto md:inset-y-0 md:left-0 md:max-h-none md:w-60 md:shrink-0 md:rounded-none md:border-t-0 md:border-r md:shadow-none md:relative md:z-auto ${
           dragState ? 'opacity-35 pointer-events-none' : 'opacity-100'
         }`}
         aria-label="Components"
@@ -134,18 +153,34 @@ export function Palette({
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" className="md:hidden"/><path d="M15 18l-6-6 6-6" className="hidden md:block"/></svg>
           </button>
         </div>
+        {/* Phone: switch between single parts and whole prebuilt circuits. */}
+        <div className="md:hidden flex gap-1 border-b border-line px-2 py-2">
+          {(['parts', 'circuits'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              aria-pressed={tab === t}
+              className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+                tab === t ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted active:bg-surface-2'
+              }`}
+            >
+              {t === 'parts' ? 'Parts' : 'Circuits'}
+            </button>
+          ))}
+        </div>
         <div className="p-2 border-b border-line">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search parts…"
-            aria-label="Search components"
+            placeholder={tab === 'circuits' ? 'Search circuits…' : 'Search parts…'}
+            aria-label="Search components and circuits"
             className="w-full rounded border border-line bg-paper px-2.5 py-2 text-sm outline-none focus:border-accent"
           />
         </div>
         <div className="flex-1 overflow-y-auto py-1 overscroll-contain">
-          {CATEGORIES.map((cat) => {
+          <div className={tab === 'circuits' ? 'hidden md:block' : ''}>
+            {CATEGORIES.map((cat) => {
             const list = filtered(byCat[cat.id] ?? []);
             if (!list.length) return null;
             return (
@@ -187,10 +222,62 @@ export function Palette({
                 </ul>
               </section>
             );
-          })}
+            })}
+            {!hasParts && (
+              <p className="px-3 py-4 text-xs text-faint">No part matches “{query.trim()}”.</p>
+            )}
+          </div>
+          {circuits.length > 0 ? (
+            <section className={`mb-1 ${tab === 'parts' ? 'hidden md:block' : ''}`}>
+              <h3 className="px-3 pt-3 pb-1 text-[0.7rem] font-semibold uppercase tracking-wide text-faint border-t-0 border-line md:border-t md:pt-2">
+                Famous circuits
+              </h3>
+              <ul className="grid grid-cols-1 gap-1 px-2 md:block md:gap-0 md:px-0">
+                {circuits.map((c) => (
+                  <li key={c.id}>
+                    <button
+                      onClick={() => onInsertCircuit?.(c.id)}
+                      title={`${c.summary} — tap to drop it on the canvas`}
+                      className="flex min-h-[52px] w-full select-none items-center gap-2 rounded-md border border-line px-3 py-2 text-left active:bg-surface-2 md:min-h-0 md:rounded-none md:border-0 md:py-1.5"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinejoin="round"
+                        className="shrink-0 text-accent"
+                        aria-hidden="true"
+                      >
+                        <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />
+                      </svg>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm text-ink-2">{c.name}</span>
+                        <span className="block truncate text-[0.7rem] text-faint">{c.summary}</span>
+                      </span>
+                      <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wide whitespace-nowrap text-faint">
+                        {c.mode === 'dc' ? 'DC' : 'Transient'}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : (
+            <p className={`px-3 py-4 text-xs text-faint ${tab === 'parts' ? 'hidden md:block' : ''}`}>
+              No circuit matches “{query.trim()}”.
+            </p>
+          )}
         </div>
         <p className="px-3 py-2 text-[0.7rem] text-faint border-t border-line">
-          Drag or tap a part to place it on the canvas.
+          <span className="md:hidden">
+            {tab === 'circuits' ? 'Tap a circuit to drop it on the canvas.' : 'Tap a part to place it on the canvas.'}
+          </span>
+          <span className="hidden md:inline">
+            Drag or tap a part to place it — or tap a famous circuit to load it.
+          </span>
         </p>
       </aside>
 

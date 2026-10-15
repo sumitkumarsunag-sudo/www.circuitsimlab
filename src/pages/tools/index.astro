@@ -9,7 +9,7 @@ for (const t of TOOLS) if (!cats.includes(t.category)) cats.push(t.category);
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'CircuitSimulate calculators',
+  name: 'CircuitSimLab calculators',
   itemListElement: TOOLS.map((t, i) => ({
     '@type': 'ListItem',
     position: i + 1,

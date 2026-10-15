@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Issue } from '../../lib/circuit/validate.ts';
 import { formatValue } from '../../lib/units.ts';
 import type { RunResult } from './sim.ts';
@@ -31,10 +31,18 @@ function IssueRow({ issue }: { issue: Issue }) {
 }
 
 export function Diagnostics({ run, error, onDismissError }: { run: RunResult | null; error: string | null; onDismissError?: () => void }) {
+  const [showWarnings, setShowWarnings] = useState(false);
   const issues = run?.issues ?? [];
   const errors = issues.filter((i) => i.severity === 'error');
   const warnings = issues.filter((i) => i.severity === 'warning');
 
+  // Surface hints right after each run — that is when feedback matters most.
+  // The user can still collapse them.
+  useEffect(() => {
+    if (run) setShowWarnings(true);
+  }, [run]);
+
+  // Circuit is considered solved if the solver succeeded, regardless of warnings
   const ok = run?.ok && errors.length === 0;
   const nodeCount = run ? Math.max(0, run.compiled.netlist.nodeCount - 1) : 0;
 
@@ -43,7 +51,7 @@ export function Diagnostics({ run, error, onDismissError }: { run: RunResult | n
       <div className="flex items-center gap-3 px-3 h-9 text-xs">
         <span className={`inline-flex items-center gap-1.5 font-medium ${ok ? 'text-ok' : error || errors.length ? 'text-err' : 'text-muted'}`}>
           <span className={`h-2 w-2 rounded-full ${ok ? 'bg-ok' : error || errors.length ? 'bg-err' : 'bg-line-strong'}`} />
-          {ok ? 'Solved' : error || errors.length ? 'Not solved' : 'Idle'}
+          {ok ? 'Solved' : error || errors.length ? 'Not solved' : 'Ready'}
         </span>
         {run?.ok && (
           <>
@@ -52,12 +60,18 @@ export function Diagnostics({ run, error, onDismissError }: { run: RunResult | n
             {run.mode === 'transient' && run.transient && <span className="text-muted tnum">{run.transient.points.length} pts</span>}
           </>
         )}
-        {(errors.length > 0 || warnings.length > 0) && (
-          <span className="ml-auto text-muted">
-            {errors.length > 0 && <span className="text-err">{errors.length} error{errors.length === 1 ? '' : 's'}</span>}
-            {errors.length > 0 && warnings.length > 0 && ' · '}
-            {warnings.length > 0 && <span className="text-warn">{warnings.length} warning{warnings.length === 1 ? '' : 's'}</span>}
+        {errors.length > 0 && (
+          <span className="ml-auto text-err text-xs">
+            {errors.length} error{errors.length === 1 ? '' : 's'}
           </span>
+        )}
+        {warnings.length > 0 && errors.length === 0 && (
+          <button
+            onClick={() => setShowWarnings((v) => !v)}
+            className="ml-auto text-warn/70 hover:text-warn text-xs transition-colors"
+          >
+            {warnings.length} hint{warnings.length === 1 ? '' : 's'} {showWarnings ? '▴' : '▾'}
+          </button>
         )}
       </div>
       {error && !errors.length && (
@@ -76,11 +90,19 @@ export function Diagnostics({ run, error, onDismissError }: { run: RunResult | n
           )}
         </div>
       )}
-      {(errors.length > 0 || warnings.length > 0) && (
+      {/* Hard errors are always shown */}
+      {errors.length > 0 && (
         <ul className="max-h-40 overflow-y-auto border-t border-line">
-          {[...errors, ...warnings].map((issue, i) => <IssueRow key={i} issue={issue} />)}
+          {errors.map((issue, i) => <IssueRow key={`e${i}`} issue={issue} />)}
+        </ul>
+      )}
+      {/* Warnings are shown collapsed — users opt-in to see them */}
+      {showWarnings && warnings.length > 0 && errors.length === 0 && (
+        <ul className="max-h-40 overflow-y-auto border-t border-line">
+          {warnings.map((issue, i) => <IssueRow key={`w${i}`} issue={issue} />)}
         </ul>
       )}
     </div>
   );
 }
+

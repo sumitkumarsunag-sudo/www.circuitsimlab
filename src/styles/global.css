@@ -193,3 +193,108 @@ summary {
 @media (prefers-reduced-motion: reduce) {
   .flow { animation: none; stroke-dasharray: 3 5; }
 }
+
+/* ─── Short-circuit blast animation ──────────────────────────────────────── */
+
+/* Central fireball: expands and fades */
+@keyframes blast-fireball-grow {
+  0%   { r: 4;  opacity: 1; }
+  30%  { r: 45; opacity: 0.9; }
+  70%  { r: 60; opacity: 0.5; }
+  100% { r: 70; opacity: 0; }
+}
+.blast-fireball {
+  animation: blast-fireball-grow 1.2s ease-out forwards;
+}
+
+/* Shockwave rings expand outward */
+@keyframes blast-ring-expand {
+  0%   { r: 10; stroke-opacity: 0.9; stroke-width: 3; }
+  100% { r: 120; stroke-opacity: 0; stroke-width: 0.5; }
+}
+.blast-ring {
+  animation: blast-ring-expand 1s ease-out forwards;
+}
+
+/* Spark particles fly out from center */
+@keyframes blast-spark-fly {
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--spark-x), var(--spark-y));
+    opacity: 0;
+  }
+}
+.blast-spark {
+  animation: blast-spark-fly 0.8s ease-out forwards;
+  transform-origin: center;
+}
+
+/* Lightning arcs flash on and off */
+@keyframes blast-arc-flash {
+  0%   { stroke-opacity: 0; }
+  10%  { stroke-opacity: 1; }
+  30%  { stroke-opacity: 0.9; }
+  60%  { stroke-opacity: 0.4; }
+  100% { stroke-opacity: 0; }
+}
+.blast-arc {
+  stroke-opacity: 0;
+  animation: blast-arc-flash 0.5s ease-out forwards;
+}
+
+/* Smoke cloud that rises and disperses */
+@keyframes blast-smoke-rise {
+  0%   { r: 20; opacity: 0; transform: translateY(0); }
+  30%  { r: 35; opacity: 0.5; }
+  100% { r: 55; opacity: 0; transform: translateY(-30px); }
+}
+.blast-smoke {
+  animation: blast-smoke-rise 2s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+/* Screen flash */
+.blast-flash {
+  transition: opacity 0.4s ease-out;
+}
+
+/* Simulation error card (short circuit and every other run failure) */
+@keyframes error-popup-shake {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-6px); }
+  20% { transform: translateX(6px); }
+  30% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  50% { transform: translateX(-2px); }
+  60% { transform: translateX(0); }
+}
+@keyframes error-popup-entrance {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.error-popup {
+  animation: error-popup-entrance 0.3s ease-out;
+}
+/* Short circuits get the extra alarm shake on top of the entrance. */
+.error-popup--shake {
+  animation: error-popup-entrance 0.3s ease-out,
+             error-popup-shake 0.6s ease-in-out 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blast-fireball,
+  .blast-ring,
+  .blast-spark,
+  .blast-arc,
+  .blast-smoke { animation: none; opacity: 0; }
+  .blast-flash { transition: none; }
+  .error-popup,
+  .error-popup--shake { animation: none; }
+}

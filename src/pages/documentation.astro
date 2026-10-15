@@ -23,15 +23,15 @@ const shortcuts = [
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
-  headline: 'CircuitSimulate Documentation',
+  headline: 'CircuitSimLab Documentation',
   description:
-    'How to use CircuitSimulate: getting started, the toolbar and panels, keyboard shortcuts, simulation modes, measurement, and saving, sharing and exporting.',
+    'How to use CircuitSimLab: getting started, the toolbar and panels, keyboard shortcuts, simulation modes, measurement, and saving, sharing and exporting.',
 };
 ---
 
 <Layout
-  title="Documentation — CircuitSimulate"
-  description="How to use CircuitSimulate: getting started, toolbar and panels, keyboard shortcuts, DC/transient/AC simulation, the multimeter and oscilloscope, and saving, sharing and exporting."
+  title="Documentation — CircuitSimLab"
+  description="How to use CircuitSimLab: getting started, toolbar and panels, keyboard shortcuts, DC/transient/AC simulation, the multimeter and oscilloscope, and saving, sharing and exporting."
   path="/documentation"
   jsonLd={jsonLd}
 >
@@ -52,7 +52,7 @@ const jsonLd = {
         <li>Open the <a href="/simulator">simulator</a>.</li>
         <li>Place a component by dragging it from the palette onto the grid, or click it and click the canvas.</li>
         <li>Wire terminal to terminal — click one pin, then the matching pin on another part. Wires snap and route orthogonally.</li>
-        <li>Add a <strong>ground</strong>. Every circuit needs a reference node; without one the solver has nothing to measure voltages against.</li>
+        <li>Add a <strong>ground</strong>. It sets the 0 V reference that every reading is measured from. You can run without one — the simulator will pick a reference for you — but adding a ground keeps the numbers conventional.</li>
         <li>Press <strong>Run</strong>. The solver computes the result and draws current, node voltages and any waveforms back onto your schematic.</li>
       </ul>
 
@@ -86,7 +86,7 @@ const jsonLd = {
       <p>The editor is built to be driven from the keyboard. Modifier keys follow your platform's convention.</p>
       <div class="not-prose overflow-x-auto">
         <table class="mt-4 w-full border-collapse text-sm">
-          <caption class="sr-only">CircuitSimulate keyboard shortcuts</caption>
+          <caption class="sr-only">CircuitSimLab keyboard shortcuts</caption>
           <thead>
             <tr class="border-b border-line-strong text-left">
               <th scope="col" class="py-2 pr-6 font-semibold">Shortcut</th>
