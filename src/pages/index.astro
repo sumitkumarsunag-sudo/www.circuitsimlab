@@ -1,15 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { allComponents } from '../lib/components/registry.ts';
-import { EXAMPLES } from '../lib/content/examples.ts';
+import { EXAMPLES } from '../lib/content/library.ts';
+import { TOOLS } from '../lib/content/tools.ts';
+import { LEARN } from '../lib/content/learn.ts';
 import FaqSection, { faqJsonLd } from '../components/site/FaqSection.astro';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   name: 'CircuitSimLab',
-  applicationCategory: 'DesignApplication',
+  url: 'https://circuitsimlab.com/',
+  applicationCategory: 'EducationalApplication',
+  applicationSubCategory: 'Circuit simulator',
   operatingSystem: 'Web',
+  browserRequirements: 'Requires JavaScript',
+  isAccessibleForFree: true,
+  featureList: [
+    'DC operating point analysis',
+    'Transient (time-domain) analysis',
+    'AC frequency sweep',
+    'Animated current flow',
+    'Virtual oscilloscope and multimeter',
+    'Share circuits by link',
+  ],
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   description:
     'Free online circuit simulator with real DC, transient and AC analysis. Build schematics in the browser and see current flow, node voltages and waveforms.',
@@ -71,7 +85,7 @@ const quickExamples = [
 ---
 
 <Layout
-  title="CircuitSimLab — Build. Simulate. Understand."
+  title="Free Online Circuit Simulator — CircuitSimLab"
   description="Free online circuit simulator with real DC, transient and AC analysis. Drag components onto the canvas, wire them up, and watch current flow — right in your browser."
   path="/"
   jsonLd={jsonLd}
@@ -83,11 +97,11 @@ const quickExamples = [
       <div class="min-w-0">
         <div class="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft/50 px-3 py-1 text-xs font-medium text-accent">
           <span class="h-1.5 w-1.5 rounded-full bg-accent animate-ping"></span>
-          <span>Online Circuit Simulator</span>
+          <span>Build. Simulate. Understand.</span>
         </div>
-        
-        <h1 class="mt-4 text-2xl font-semibold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-ink">
-          Build. Simulate.<br /><span class="text-accent">Understand.</span>
+
+        <h1 class="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl text-ink">
+          Free Online <span class="text-accent">Circuit Simulator</span>
         </h1>
         
         <p class="mt-4 max-w-lg text-sm sm:text-lg text-ink-2">
@@ -206,7 +220,7 @@ const quickExamples = [
         <h2 class="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Try pre-built circuits</h2>
       </div>
       <a href="/examples" class="text-sm font-medium text-accent hover:underline inline-flex items-center gap-1">
-        All {EXAMPLES.length}+ examples →
+        All {EXAMPLES.length} examples →
       </a>
     </div>
 
@@ -294,6 +308,48 @@ const quickExamples = [
           </li>
         ))}
       </ol>
+    </div>
+  </section>
+
+  <!-- Explore: classic circuits, calculators and guides -->
+  <section class="container-page py-12 sm:py-16">
+    <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl text-ink">Explore circuits, calculators and guides</h2>
+    <p class="mt-2 max-w-2xl text-sm sm:text-base text-ink-2">
+      Everything here is free and runs in your browser. Open a classic circuit, check a value with a calculator, or read the theory behind it.
+    </p>
+    <div class="mt-8 grid gap-8 md:grid-cols-3">
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-faint">Example circuits</h3>
+        <ul class="mt-3 space-y-2 text-sm">
+          {EXAMPLES.map((e) => (
+            <li><a href={`/examples/${e.slug}`} class="text-ink-2 hover:text-accent">{e.title}</a></li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-faint">Calculators</h3>
+        <ul class="mt-3 space-y-2 text-sm">
+          {TOOLS.map((t) => (
+            <li><a href={`/tools/${t.slug}`} class="text-ink-2 hover:text-accent">{t.title[0].toUpperCase() + t.title.slice(1)}</a></li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-faint">Guides</h3>
+        <ul class="mt-3 space-y-2 text-sm">
+          {LEARN.map((a) => (
+            <li><a href={`/learn/${a.slug}`} class="text-ink-2 hover:text-accent">{a.title}</a></li>
+          ))}
+        </ul>
+        <h3 class="mt-6 text-xs font-semibold uppercase tracking-wide text-faint">Simulators by topic</h3>
+        <ul class="mt-3 space-y-2 text-sm">
+          <li><a href="/led-circuit-simulator" class="text-ink-2 hover:text-accent">LED circuit simulator</a></li>
+          <li><a href="/rc-circuit-simulator" class="text-ink-2 hover:text-accent">RC circuit simulator</a></li>
+          <li><a href="/rlc-circuit-simulator" class="text-ink-2 hover:text-accent">RLC circuit simulator</a></li>
+          <li><a href="/analog-circuit-simulator" class="text-ink-2 hover:text-accent">Analog circuit simulator</a></li>
+          <li><a href="/555-timer-simulator" class="text-ink-2 hover:text-accent">555 timer simulator</a></li>
+        </ul>
+      </div>
     </div>
   </section>
 

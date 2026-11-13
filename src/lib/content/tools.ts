@@ -269,6 +269,99 @@ export const TOOLS: Tool[] = [
       { href: '/simulator', label: 'Open the simulator' },
     ],
   },
+  {
+    slug: 'parallel-resistor-calculator',
+    title: 'Parallel resistor calculator',
+    category: 'Fundamentals',
+    summary: 'Enter two to four resistors in parallel and get the combined resistance — plus the series total for comparison.',
+    intro:
+      'Resistors in parallel share the same voltage and give current more than one path, so the combined resistance is always lower than the smallest resistor. Enter two, three or four values and leave any unused fields blank.',
+    formula: ['1 / R_total = 1/R1 + 1/R2 + 1/R3 + …', 'Two resistors: R_total = (R1 × R2) / (R1 + R2)', 'Series: R_total = R1 + R2 + R3 + …'],
+    explain: [
+      'Parallel resistances add as reciprocals. Each branch contributes a conductance of 1/R, the conductances add, and the total resistance is the reciprocal of that sum.',
+      'Two quick checks catch most mistakes. The answer must be smaller than the smallest resistor you entered, and two equal resistors in parallel give exactly half of one. A 1 kΩ and a 3 kΩ resistor in parallel make 750 Ω.',
+      'If one resistor is much smaller than the others it dominates the result — 100 Ω in parallel with 10 kΩ is 99 Ω. That is useful when you need to trim a value slightly downward using parts you already have.',
+      'The parallel resistors example builds this network on the canvas and reports each branch current straight from the solver.',
+    ],
+    fields: [
+      { id: 'R1', label: 'R1', unit: 'Ω', default: 1000, step: 1, min: 0 },
+      { id: 'R2', label: 'R2', unit: 'Ω', default: 3000, step: 1, min: 0 },
+      { id: 'R3', label: 'R3 (optional)', unit: 'Ω', placeholder: 'leave blank if unused', step: 1, min: 0 },
+      { id: 'R4', label: 'R4 (optional)', unit: 'Ω', placeholder: 'leave blank if unused', step: 1, min: 0 },
+    ],
+    outputs: [
+      { id: 'oPar', label: 'Parallel resistance', primary: true },
+      { id: 'oSer', label: 'Same resistors in series' },
+      { id: 'oG', label: 'Total conductance' },
+      { id: 'oN', label: 'Resistors counted' },
+    ],
+    related: [
+      { href: '/examples/parallel-resistors', label: 'Parallel resistors example circuit' },
+      { href: '/examples/current-divider', label: 'Current divider example' },
+      { href: '/learn/series-and-parallel', label: 'Learn: series and parallel' },
+    ],
+  },
+  {
+    slug: 'rc-filter-calculator',
+    title: 'RC low-pass filter cutoff calculator',
+    category: 'Dynamics',
+    summary: 'Find the cutoff frequency of an RC low-pass or high-pass filter from its resistor and capacitor values.',
+    intro:
+      'A resistor and a capacitor make the simplest filter there is. The cutoff frequency is where the output has fallen to 70.7% of the input (−3 dB). The same formula applies to a low-pass filter (output across the capacitor) and a high-pass filter (output across the resistor).',
+    formula: ['f_c = 1 / (2π × R × C)', 'τ = R × C', 'Gain at f_c = 1/√2 ≈ 0.707 (−3 dB)'],
+    explain: [
+      'Below the cutoff a low-pass filter passes signals almost untouched; above it the output falls by a factor of ten for every tenfold rise in frequency (−20 dB per decade). A high-pass filter does the reverse.',
+      'At the cutoff frequency the capacitor’s reactance equals the resistance, which is why the output is 0.707 of the input there and lags it by 45°.',
+      'With R = 1.6 kΩ and C = 100 nF the cutoff is about 995 Hz — a common starting point for audio work. To move the cutoff, scale either part: doubling R or C halves the frequency.',
+      'The simple formula assumes the filter drives a high-impedance load. A load comparable to R shifts the cutoff and lowers the passband gain, so buffer the output or keep the load at least ten times R.',
+    ],
+    fields: [
+      { id: 'R', label: 'Resistance (R)', unit: 'kΩ', default: 1.6, step: 0.1, min: 0 },
+      { id: 'C', label: 'Capacitance (C)', unit: 'nF', default: 100, step: 1, min: 0 },
+    ],
+    outputs: [
+      { id: 'oFc', label: 'Cutoff frequency (−3 dB)', primary: true },
+      { id: 'oTau', label: 'Time constant τ' },
+      { id: 'oW', label: 'Angular cutoff ω' },
+      { id: 'oXc', label: 'Capacitor reactance at cutoff' },
+    ],
+    related: [
+      { href: '/examples/rc-charging', label: 'RC charging example circuit' },
+      { href: '/rc-circuit-simulator', label: 'RC circuit simulator' },
+      { href: '/learn/capacitors', label: 'Learn: capacitors and RC' },
+    ],
+  },
+  {
+    slug: 'lc-resonance-calculator',
+    title: 'LC resonant frequency calculator',
+    category: 'Dynamics',
+    summary: 'Resonant frequency of an inductor and capacitor, with reactance, Q factor and bandwidth for a series RLC circuit.',
+    intro:
+      'An inductor and a capacitor together resonate at one frequency, where their reactances are equal and cancel. Enter L and C for the resonant frequency; add a series resistance to get the Q factor and bandwidth as well.',
+    formula: ['f₀ = 1 / (2π × √(L × C))', 'X = 2π × f₀ × L = √(L / C)', 'Q = X / R      Bandwidth = f₀ / Q'],
+    explain: [
+      'At resonance the inductive and capacitive reactances have the same size. That shared value, √(L/C), is the characteristic impedance of the pair and is what the resistor is compared against to find Q.',
+      'Q describes how selective the circuit is. A high Q means a narrow, tall resonance peak and a long ring after a disturbance; a Q below 0.5 means the circuit is overdamped and does not ring at all.',
+      'With L = 10 mH and C = 2.5 µF the resonant frequency is about 1.007 kHz. A 220 Ω series resistor gives Q ≈ 0.29; drop it to 10 Ω and Q rises to about 6.3.',
+      'The series RLC resonance example uses exactly these values. Open it, run an AC sweep, and the peak lands where this calculator says it should.',
+    ],
+    fields: [
+      { id: 'L', label: 'Inductance (L)', unit: 'mH', default: 10, step: 0.1, min: 0 },
+      { id: 'C', label: 'Capacitance (C)', unit: 'µF', default: 2.5, step: 0.01, min: 0 },
+      { id: 'R', label: 'Series resistance (optional)', unit: 'Ω', default: 220, step: 1, min: 0 },
+    ],
+    outputs: [
+      { id: 'oF0', label: 'Resonant frequency f₀', primary: true },
+      { id: 'oX', label: 'Reactance at resonance' },
+      { id: 'oQ', label: 'Q factor (series)' },
+      { id: 'oBw', label: 'Bandwidth' },
+    ],
+    related: [
+      { href: '/examples/rlc-resonance', label: 'Series RLC resonance example' },
+      { href: '/rlc-circuit-simulator', label: 'RLC circuit simulator' },
+      { href: '/learn/rlc-resonance', label: 'Learn: RLC resonance' },
+    ],
+  },
 ];
 
 export function getTool(slug: string): Tool | undefined {

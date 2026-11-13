@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { allComponents, getComponentDef } from '../../lib/components/registry.ts';
 import { renderSymbolInner } from '../../lib/components/renderSymbol.ts';
+import { EXAMPLES } from '../../lib/content/library.ts';
 
 export function getStaticPaths() {
   return allComponents().map((def) => ({
@@ -15,6 +16,9 @@ const def = getComponentDef(kind)!;
 
 const propRows = def.props.filter((p) => !p.advanced);
 const advRows = def.props.filter((p) => p.advanced);
+
+// Example circuits that actually contain this part.
+const usedIn = EXAMPLES.filter((e) => e.build().components.some((c) => c.kind === kind)).slice(0, 6);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -33,7 +37,7 @@ function fmtDefault(v: unknown): string {
 ---
 
 <Layout
-  title={`${def.name} — Symbol, Parameters & Simulation | CircuitSimLab`}
+  title={`${def.name} — Symbol, Parameters & Simulation`}
   description={`${def.description} See the ${def.name.toLowerCase()} schematic symbol, its terminals and parameters, and simulate it online for free.`}
   path={`/components/${kind.replace(/_/g, '-')}`}
   jsonLd={jsonLd}
@@ -79,6 +83,20 @@ function fmtDefault(v: unknown): string {
             {advRows.length > 0 && (
               <p class="mt-3 text-xs text-muted">Plus {advRows.length} advanced parameter{advRows.length > 1 ? 's' : ''} available in the properties panel.</p>
             )}
+          </>
+        )}
+
+        {usedIn.length > 0 && (
+          <>
+            <h2 class="mt-10 text-sm font-semibold uppercase tracking-wide text-faint">Example circuits using the {def.name.toLowerCase()}</h2>
+            <ul class="mt-3 space-y-2">
+              {usedIn.map((e) => (
+                <li>
+                  <a href={`/examples/${e.slug}`} class="prose-link">{e.title}</a>
+                  <span class="text-sm text-ink-2"> — {e.summary}</span>
+                </li>
+              ))}
+            </ul>
           </>
         )}
       </div>

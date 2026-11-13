@@ -8,7 +8,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How to use a circuit simulator?',
     answer:
-      'To use an online circuit simulator, start by selecting electronic components (such as resistors, capacitors, power sources, transistors, or logic gates) from the part palette and placing them onto the schematic canvas. Connect terminals by clicking and dragging wires between component pins. Adjust values like resistance, capacitance, or supply voltage by clicking on each component. Next, choose your analysis mode (DC operating point, transient time-domain simulation, or AC frequency sweep) and click Run. You can attach virtual multimeters, voltage probes, or a 2-channel oscilloscope to inspect real-time voltages, branch currents, and waveforms.',
+      'To use an online circuit simulator, start by selecting electronic components (such as resistors, capacitors, inductors, diodes, LEDs and power sources) from the part palette and placing them onto the schematic canvas. Connect terminals by clicking and dragging wires between component pins. Adjust values like resistance, capacitance, or supply voltage by clicking on each component. Next, choose your analysis mode (DC operating point, transient time-domain simulation, or AC frequency sweep) and click Run. You can attach virtual multimeters, voltage probes, or a 2-channel oscilloscope to inspect real-time voltages, branch currents, and waveforms.',
   },
   {
     question: 'What is a circuit simulator?',
@@ -23,12 +23,12 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How to make a circuit simulator?',
     answer:
-      'Building a circuit simulator involves five core steps: (1) Formulate circuit equations using Modified Nodal Analysis (MNA) to construct linear matrix systems (G · v = i); (2) Implement numerical linear algebra solvers such as LU decomposition or Gaussian elimination; (3) Develop component models for linear elements (resistors, capacitors, inductors) and non-linear elements (diodes and transistors via Newton-Raphson iteration); (4) Apply numerical integration methods like Trapezoidal or Backward Euler integration for time-domain transient analysis; and (5) Build an interactive UI or canvas to render schematics, wire connections, and visualize current animations.',
+      'Building a circuit simulator involves five core steps: (1) Formulate circuit equations using Modified Nodal Analysis (MNA) to construct linear matrix systems (G · v = i); (2) Implement numerical linear algebra solvers such as LU decomposition or Gaussian elimination; (3) Develop component models for linear elements (resistors, capacitors, inductors) and non-linear elements (diodes and transistors, solved with Newton-Raphson iteration); (4) Apply numerical integration methods like Trapezoidal or Backward Euler integration for time-domain transient analysis; and (5) Build an interactive UI or canvas to render schematics, wire connections, and visualize current animations.',
   },
   {
     question: 'Is there an online circuit simulator?',
     answer:
-      'Yes, CircuitSimLab is a fast, accurate, and completely web-based online circuit simulator. Powered by high-performance Web Workers, it runs 100% locally in your web browser with no plugins or installations needed. You can design analog and digital circuits, view live current animations, and probe node voltages across desktops, laptops, tablets, and mobile devices.',
+      'Yes, CircuitSimLab is a fast, accurate, and completely web-based online circuit simulator. Powered by high-performance Web Workers, it runs 100% locally in your web browser with no plugins or installations needed. You can design analog circuits, view live current animations, and probe node voltages across desktops, laptops, tablets, and mobile devices.',
   },
   {
     question: 'Circuit simulator online free: Is there a free online circuit simulator?',

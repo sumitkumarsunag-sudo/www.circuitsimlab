@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { EXAMPLES, getExample } from '../../lib/content/examples.ts';
+import { EXAMPLES, getExample, relatedExamples } from '../../lib/content/library.ts';
+import { LEARN } from '../../lib/content/learn.ts';
+import { TOOLS } from '../../lib/content/tools.ts';
 import { renderSymbolInner } from '../../lib/components/renderSymbol.ts';
 import { getComponentDef } from '../../lib/components/registry.ts';
 import { encodeShare } from '../../lib/circuit/serialize.ts';
@@ -21,17 +23,38 @@ for (const c of circuit.components) grow(c.x, c.y);
 const pad = 60;
 const viewBox = `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'TechArticle',
-  headline: ex.title,
-  description: ex.summary,
-  about: 'Electronics circuit simulation',
-};
+const url = `https://circuitsimlab.com/examples/${ex.slug}`;
+const related = relatedExamples(ex.slug, 3);
+// Guides and calculators that point at this example.
+const guides = LEARN.filter((a) => a.exampleSlug === ex.slug);
+const calculators = TOOLS.filter((t) => t.related.some((r) => r.href === `/examples/${ex.slug}`));
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: `${ex.title} circuit`,
+    description: ex.summary,
+    about: 'Electronics circuit simulation',
+    url,
+    mainEntityOfPage: url,
+    author: { '@type': 'Organization', name: 'CircuitSimLab', url: 'https://circuitsimlab.com/' },
+    publisher: { '@type': 'Organization', name: 'CircuitSimLab', url: 'https://circuitsimlab.com/' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://circuitsimlab.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Examples', item: 'https://circuitsimlab.com/examples' },
+      { '@type': 'ListItem', position: 3, name: ex.title, item: url },
+    ],
+  },
+];
 ---
 
 <Layout
-  title={`${ex.title} — Simulated Circuit Example | CircuitSimLab`}
+  title={`${ex.title} Circuit — Simulate Online Free`}
   description={ex.summary}
   path={`/examples/${ex.slug}`}
   jsonLd={jsonLd}
@@ -74,6 +97,17 @@ const jsonLd = {
           <h2>How it works</h2>
           {ex.explain.map((p) => <p>{p}</p>)}
         </div>
+
+        {(guides.length > 0 || calculators.length > 0) && (
+          <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {guides.map((g) => (
+              <a href={`/learn/${g.slug}`} class="prose-link">Guide: {g.title} →</a>
+            ))}
+            {calculators.map((t) => (
+              <a href={`/tools/${t.slug}`} class="prose-link">{t.title} →</a>
+            ))}
+          </div>
+        )}
       </div>
 
       <aside class="space-y-6">
@@ -93,5 +127,19 @@ const jsonLd = {
         <a href="/examples" class="btn btn-ghost w-full justify-center">More examples</a>
       </aside>
     </div>
+
+    {related.length > 0 && (
+      <section class="mt-14 border-t border-line pt-8">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-faint">More circuits to try</h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+          {related.map((r) => (
+            <a href={`/examples/${r.slug}`} class="group rounded-lg border border-line bg-paper p-4 transition-colors hover:border-accent">
+              <h3 class="font-semibold group-hover:text-accent">{r.title}</h3>
+              <p class="mt-1.5 text-sm text-ink-2">{r.summary}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </div>
 </Layout>

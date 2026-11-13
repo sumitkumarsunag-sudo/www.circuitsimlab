@@ -9,6 +9,8 @@ const cols = [
       { href: '/examples', label: 'Example Circuits' },
       { href: '/components', label: 'Component Library' },
       { href: '/tools', label: 'Calculators' },
+      { href: '/tools/resistor-color-code', label: 'Resistor Colour Code' },
+      { href: '/tools/parallel-resistor-calculator', label: 'Parallel Resistor Calculator' },
     ],
   },
   {
@@ -17,6 +19,8 @@ const cols = [
       { href: '/learn', label: 'Guides' },
       { href: '/learn/ohms-law', label: "Ohm's Law" },
       { href: '/learn/capacitors', label: 'Capacitors' },
+      { href: '/learn/kirchhoffs-laws', label: "Kirchhoff's Laws" },
+      { href: '/learn/rlc-resonance', label: 'RLC Resonance' },
       { href: '/documentation', label: 'Documentation' },
     ],
   },
@@ -27,6 +31,10 @@ const cols = [
       { href: '/led-circuit-simulator', label: 'LED Circuit Simulator' },
       { href: '/rc-circuit-simulator', label: 'RC Circuit Simulator' },
       { href: '/555-timer-simulator', label: '555 Timer Simulator' },
+      { href: '/rlc-circuit-simulator', label: 'RLC Circuit Simulator' },
+      { href: '/analog-circuit-simulator', label: 'Analog Circuit Simulator' },
+      { href: '/electronics-simulator', label: 'Electronics Simulator' },
+      { href: '/free-circuit-simulator', label: 'Free Circuit Simulator' },
     ],
   },
   {
@@ -64,7 +72,10 @@ const year = new Date().getFullYear();
     </div>
     <div class="mt-10 pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-2">
       <p class="text-xs text-muted">© {year} CircuitSimLab. Simulation runs entirely in your browser.</p>
-      <p class="text-xs text-muted tnum">Real MNA solver · DC · Transient · AC</p>
+      <p class="text-xs text-muted tnum">
+        <a href="#cookie-settings" data-cookie-settings class="hover:text-accent underline-offset-2 hover:underline">Cookie settings</a>
+        <span class="mx-1.5">·</span>Real MNA solver · DC · Transient · AC
+      </p>
     </div>
   </div>
 </footer>

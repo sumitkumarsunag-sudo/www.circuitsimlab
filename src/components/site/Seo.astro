@@ -25,28 +25,60 @@ const {
 } = Astro.props;
 
 const canonical = SITE + (path === '/' ? '/' : path.replace(/\/$/, ''));
-const fullTitle = path === '/' ? title : `${title} · ${NAME}`;
+// Append the brand once, and only when the result still fits in a search
+// result title (~62 characters) — a long descriptive title beats a cut-off one.
+const branded = `${title} | ${NAME}`;
+const fullTitle = title.includes(NAME) || branded.length > 62 ? title : branded;
 const ogImage = `${SITE}/og-default.jpg`;
 const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+// Site-wide entity data, emitted once on the home page.
+const siteBlocks =
+  path === '/'
+    ? [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: NAME,
+          alternateName: 'Circuit Sim Lab',
+          url: `${SITE}/`,
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: NAME,
+          url: `${SITE}/`,
+          logo: `${SITE}/apple-touch-icon.png`,
+        },
+      ]
+    : [];
 ---
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex,nofollow" />}
+{noindex ? (
+  <meta name="robots" content="noindex,nofollow" />
+) : (
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+)}
 
 <meta property="og:type" content={ogType} />
 <meta property="og:site_name" content={NAME} />
+<meta property="og:locale" content="en_US" />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="CircuitSimLab — free online circuit simulator" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 
-{blocks.map((b) => (
+{[...siteBlocks, ...blocks].map((b) => (
   <script type="application/ld+json" set:html={JSON.stringify(b)} />
 ))}

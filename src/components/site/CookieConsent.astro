@@ -1,7 +1,8 @@
 ---
 /**
  * Cookie consent banner for Google AdSense & Analytics compliance.
- * Shows on first visit, stores preference in localStorage.
+ * Shows on first visit, stores the choice in localStorage and reports it to
+ * Google tags through Consent Mode v2 (defaults are set in Layout.astro).
  * Required by GDPR & Google AdSense policies.
  */
 ---
@@ -15,9 +16,9 @@
   <div class="container-page flex flex-col sm:flex-row items-start sm:items-center gap-3 py-3 sm:py-4">
     <div class="flex-1 min-w-0">
       <p class="text-sm text-ink-2 leading-relaxed">
-        We use cookies for analytics (Google Analytics) and advertising (Google AdSense) to improve
-        your experience and support this free tool. By continuing to use this site, you consent to
-        our use of cookies.
+        We use cookies for analytics (Google Analytics) and advertising (Google AdSense) to keep this
+        tool free. Accept to allow them, or reject to browse without analytics and personalised-ad
+        cookies. You can change your mind any time from the footer.
         <a href="/privacy" class="text-accent hover:underline font-medium">Learn more</a>
       </p>
     </div>
@@ -55,18 +56,28 @@
   }
 
   // Check if consent was already given
-  const consent = localStorage.getItem(CONSENT_KEY);
+  let consent: string | null = null;
+  try { consent = localStorage.getItem(CONSENT_KEY); } catch { /* private mode */ }
   if (!consent) {
     showBanner();
   }
 
-  acceptBtn?.addEventListener('click', () => {
-    localStorage.setItem(CONSENT_KEY, 'accepted');
+  // Tell Google tags about the choice (Consent Mode v2) and remember it.
+  function choose(value: 'accepted' | 'rejected') {
+    try { localStorage.setItem(CONSENT_KEY, value); } catch { /* private mode */ }
+    const v = value === 'accepted' ? 'granted' : 'denied';
+    const w = window as unknown as { gtag?: (...a: unknown[]) => void };
+    w.gtag?.('consent', 'update', {
+      ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v,
+    });
     hideBanner();
-  });
+  }
 
-  rejectBtn?.addEventListener('click', () => {
-    localStorage.setItem(CONSENT_KEY, 'rejected');
-    hideBanner();
-  });
+  acceptBtn?.addEventListener('click', () => choose('accepted'));
+  rejectBtn?.addEventListener('click', () => choose('rejected'));
+
+  // "Cookie settings" links (footer) reopen the banner.
+  document.querySelectorAll('[data-cookie-settings]').forEach((el) =>
+    el.addEventListener('click', (e) => { e.preventDefault(); showBanner(); }),
+  );
 </script>

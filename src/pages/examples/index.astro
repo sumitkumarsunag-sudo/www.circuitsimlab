@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { EXAMPLES } from '../../lib/content/examples.ts';
+import { EXAMPLES } from '../../lib/content/library.ts';
 import { renderSymbolInner } from '../../lib/components/renderSymbol.ts';
 import { getComponentDef } from '../../lib/components/registry.ts';
 import { terminalPosition } from '../../lib/circuit/types.ts';
@@ -32,8 +32,8 @@ function thumb(circuit: ReturnType<(typeof EXAMPLES)[number]['build']>) {
 ---
 
 <Layout
-  title="Example Circuits — Learn by Simulating | CircuitSimLab"
-  description="A growing library of worked circuits — Ohm's law, voltage dividers, LED drivers, RC charging and more. Each one opens live in the simulator with real, solved results."
+  title="Example Circuits — Open and Simulate Online"
+  description="Worked example circuits you can open and run: Ohm's law, voltage divider, LED resistor, RC charging, Wheatstone bridge, bridge rectifier, voltage doubler, RLC resonance and more."
   path="/examples"
   jsonLd={jsonLd}
 >
